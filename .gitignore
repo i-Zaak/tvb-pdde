@@ -1,1 +1,3 @@
-*.o
+build
+lib/*
+bin/*
