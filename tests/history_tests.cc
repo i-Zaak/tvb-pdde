@@ -16,7 +16,27 @@ TEST_CASE( "Pushing to history", "[history]" ) {
 		h_bufs.add_values(vals);
 	}
 	
-	REQUIRE( h_bufs.get_value(0,0) == Approx(6) );
-	REQUIRE( h_bufs.get_value(1,0) == Approx(4) );
-	REQUIRE( h_bufs.get_value(2,0) == Approx(1) );
+	REQUIRE( h_bufs.get_value(0,1) == Approx(6) );
+	REQUIRE( h_bufs.get_value(1,3) == Approx(4) );
+	REQUIRE( h_bufs.get_value(2,6) == Approx(1) );
+	REQUIRE( h_bufs.get_value(0,0) == Approx(7) );
+	REQUIRE( h_bufs.get_value(1,0) == Approx(7) );
+	REQUIRE( h_bufs.get_value(2,0) == Approx(7) );
 }
+
+TEST_CASE( "History interpolation", "[history]" ) {
+	std::vector<int> buf_lengths = std::vector<int>(3);
+	buf_lengths[0] = 6;
+	buf_lengths[1] = 2;
+	buf_lengths[2] = 9;
+	history_buffers h_bufs = interpolated_history(buf_lengths, 0.2);
+	for (int i = 0; i < 10; i++) {
+		std::vector<double> vals = std::vector<double>(3);
+		std::fill( vals.begin(), vals.end(), double(i));
+		h_bufs.add_values(vals);
+	}
+	REQUIRE( h_bufs.get_value(0,2.0) == Approx(9) );
+	REQUIRE( h_bufs.get_value(1,2.0) == Approx(9) );
+	REQUIRE( h_bufs.get_value(2,2.0) == Approx(9) );
+
+}	
