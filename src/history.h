@@ -24,7 +24,7 @@ class interpolated_history: public history_buffers{
 	double linear_interpolate( double y1, double y2, double mu);
 	public:
 		interpolated_history(std::vector<int> n_verts, double dt);
-		double get_value(int node_id, double time);
+		double get_value_t(int node_id, double time);
 		void add_value(int node_id, double value);
 		void add_values(std::vector<double> values);
 };
