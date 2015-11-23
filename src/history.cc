@@ -50,8 +50,8 @@ std::ostream& operator<< (std::ostream &out,history_buffers &h_bufs ){
 
 interpolated_history::interpolated_history(std::vector<int> n_verts, double dt):history_buffers(n_verts)
 {
-	dt = dt;
-	timesteps = std::vector<int>(n_verts.size(),0);
+	this->dt = dt;
+	timesteps = std::vector<int>(buffers.size(),0);
 }
 
 double interpolated_history::hermite_interpolate(	double y0, double y1, double y2, 
@@ -88,9 +88,9 @@ double interpolated_history::linear_interpolate( double y1, double y2, double mu
 void interpolated_history::add_values(std::vector<double> values)
 {
 	//This is ridiculous. Refactor in C11.
-	for(std::vector<int>::iterator it = timesteps.begin(); it != timesteps.end(); it++)
+	for(std::vector<int>::size_type i = 0; i <timesteps.size(); i++)
 	{
-		*it++;
+		timesteps[i] ++;
 	}
 	
 	history_buffers::add_values(values);
@@ -102,7 +102,7 @@ void interpolated_history::add_value(int node_id , double value)
 	history_buffers::add_value(node_id, value);
 }
 
-double interpolated_history::get_value(int node_id, double time)
+double interpolated_history::get_value_t(int node_id, double time)
 {
 	//int i1 = floor((timesteps[node_id] * dt - time)/dt);
 	//int i0 = i1+1;
@@ -123,7 +123,6 @@ double interpolated_history::get_value(int node_id, double time)
 	double mu = (relative_t-i1*dt)/dt;
 	double y1 = get_value(node_id,i1);
 	double y2 = get_value(node_id,i2);
-
 	return linear_interpolate(y1,y2, mu);
 	 
 }
