@@ -5,7 +5,7 @@
 class population_model
 {
 	public:
-		virtual void dfun(	std::vector<double> &state_variables, 
+		virtual void operator()(const &state_variables, 
 							std::vector<double> &coupling, 
 							std::vector<double> &new_state)=0;
 }
