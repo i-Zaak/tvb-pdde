@@ -35,7 +35,7 @@ void history_buffers::add_values(std::vector<double> values)
 		timesteps[i] ++;
 	}
 
-	for (int i = 0; i < values.size(); i++) 
+	for(std::vector<int>::size_type i = 0; i < values.size(); i++) 
 	{
 		buffers[i].push_front(values[i]);
 	}
@@ -71,8 +71,8 @@ double lint_history::get_value(int node_id, double time)
 	int i1 = floor(relative_t/dt);
 	int i2 = i1+1;
 	double mu = (relative_t-i1*dt)/dt;
-	double y1 = get_value(node_id,i1);
-	double y2 = get_value(node_id,i2);
+	double y1 = get_value_at(node_id,i1);
+	double y2 = get_value_at(node_id,i2);
 
 	return linear_interpolate(y1,y2, mu);
 }
