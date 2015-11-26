@@ -1,53 +1,55 @@
+typedef local_state_type boost::array<double>;
+typedef local_coupling_type boost::array<double>;
+typedef global_state_type std::vector< history_buffers >;
+
 /**
- Provides `dfun` function to evaluate the derivative. Note that the *local
- coupling* is here just another coupling variable.
+ Provides `dfun` function to evaluate the right-hand side of the model for
+ single population. Also holds the constants. Sizes of the arrays are fixed 
+ for given model. 
+
+ `phi`			local set of state variables
+ `coupling` 	contributions from other populations: can have multiple
+ 				components (coupling variables)
+ `dphidt`		result of the same size as `phi`
+
+
  */
 class population_model
 {
 	public:
-		virtual void operator()(const &state_variables, 
-							std::vector<double> &coupling, 
-							std::vector<double> &new_state)=0;
+		virtual void operator()(	const local_state_type &phi, 
+									const local_coupling_type &coupling, 
+									local_state_type &dphidt)=0;
 }
 
 /**
- Performs the integration step.
+ Computes the remote contributions between populations. 
  */
-class integration_scheme
+class population_coupling
 {
-	private:
-		population_model model;
 	public:
-		integration_scheme( population_model m ):model(m);
-		virtual void step(	std::vector<double> &state_variables, 							
-							std::vector<double> &coupling, 
-							std::vector<double> &new_state)=0;
+		virtual void operator()(	const connectivity_type &connectivity,
+									const global_state_type &state,
+									global_coupling_type &coupling)=0;
 }
+
 
 /**
  Performs the main integration loop for every node:
   * evaluate coupling
-  * call integrator
+  * perform integration step
   * update history
 
  Also setups, holds and tears down the integration data structures. 
  */
 class integrator 
 {
-	private:
+	protected:
 		model_coupling coupling;
 		integration_scheme scheme;
 	public:
 		integrator(	population_model model,
 					model_coupling coupling,
 					integration_scheme scheme);
-}
-
-/**
- Computes the remote contributions.
- */
-class model_coupling
-{
-	public:
 }
 
