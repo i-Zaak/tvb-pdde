@@ -5,45 +5,41 @@
 #include<vector>
 
 TEST_CASE( "Pushing to history", "[history]" ) {
-	std::vector<int> buf_lengths = std::vector<int>(3);
-	buf_lengths[0] = 2;
-	buf_lengths[1] = 4;
-	buf_lengths[2] = 7;
-	lint_history h_bufs = lint_history(buf_lengths,1.0);
+	lint_history h_bufs = lint_history(4,1.0);
 	for (int i = 0; i < 8; i++) {
 		std::vector<double> vals = std::vector<double>(3);
-		std::fill( vals.begin(), vals.end(), double(i));
+		for (int j = 0; j < 3;j++){
+			vals[j] = i+j;
+		}
 		h_bufs.add_values(vals);
 	}
 	
-	REQUIRE( h_bufs.get_value_at(0,1) == Approx(6) );
-	REQUIRE( h_bufs.get_value_at(1,3) == Approx(4) );
-	REQUIRE( h_bufs.get_value_at(2,6) == Approx(1) );
 	REQUIRE( h_bufs.get_value_at(0,0) == Approx(7) );
-	REQUIRE( h_bufs.get_value_at(1,0) == Approx(7) );
-	REQUIRE( h_bufs.get_value_at(2,0) == Approx(7) );
+	REQUIRE( h_bufs.get_value_at(0,1) == Approx(8) );
+	REQUIRE( h_bufs.get_value_at(0,2) == Approx(9) );
+	REQUIRE( h_bufs.get_value_at(1,2) == Approx(8) );
+	REQUIRE( h_bufs.get_value_at(2,2) == Approx(7) );
+	REQUIRE( h_bufs.get_value_at(3,2) == Approx(6) );
 }
 
 TEST_CASE( "History interpolation", "[history]" ) {
-	std::vector<int> buf_lengths = std::vector<int>(3);
-	buf_lengths[0] = 6;
-	buf_lengths[1] = 2;
-	buf_lengths[2] = 9;
-	lint_history h_bufs = lint_history(buf_lengths, 0.2);
+	lint_history h_bufs = lint_history(3, 0.2);
 	for (int i = 0; i < 10; i++) {
 		std::vector<double> vals = std::vector<double>(3);
-		std::fill( vals.begin(), vals.end(), double(i));
+		for (int j = 0; j < 3;j++){
+			vals[j] = i+j;
+		}
 		h_bufs.add_values(vals);
 	}
-	REQUIRE( h_bufs.get_value(0,2.0) == Approx(9) );
-	REQUIRE( h_bufs.get_value(1,2.0) == Approx(9) );
-	REQUIRE( h_bufs.get_value(2,2.0) == Approx(9) );
+	REQUIRE( h_bufs.get_value(0.0,0) == Approx(9) );
+	REQUIRE( h_bufs.get_value(0.0,1) == Approx(10) );
+	REQUIRE( h_bufs.get_value(0.0,2) == Approx(11) );
 
-	REQUIRE( h_bufs.get_value(0,1.8) == Approx(8) );
-	REQUIRE( h_bufs.get_value(1,1.8) == Approx(8) );
-	REQUIRE( h_bufs.get_value(2,1.8) == Approx(8) );
+	REQUIRE( h_bufs.get_value(0.2,0) == Approx(8) );
+	REQUIRE( h_bufs.get_value(0.2,1) == Approx(9) );
+	REQUIRE( h_bufs.get_value(0.2,2) == Approx(10) );
 
-	REQUIRE( h_bufs.get_value(0,1.9) == Approx(8.5) );
-	REQUIRE( h_bufs.get_value(1,1.9) == Approx(8.5) );
-	REQUIRE( h_bufs.get_value(2,1.9) == Approx(8.5) );
+	REQUIRE( h_bufs.get_value(0.3,0) == Approx(7.5) );
+	REQUIRE( h_bufs.get_value(0.3,1) == Approx(8.5) );
+	REQUIRE( h_bufs.get_value(0.3,2) == Approx(9.5) );
 }	

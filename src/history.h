@@ -3,17 +3,20 @@
 #include <iostream>
 #include <boost/math/special_functions/hermite.hpp>
 
+/**
+ Buffers for single population described by multiple state variables.
+ */
 class history_buffers {
 	protected:
-		std::vector< boost::circular_buffer<double> > buffers;
+		boost::circular_buffer< std::vector<double> > buffer;
 		double dt;
-		std::vector<int> timesteps;
 	public:
-		history_buffers(std::vector<int> n_verts, double dt);
-		virtual double get_value(int node_id, double time)=0;
-		double get_value_at(int node_id, int position);
-		void add_value(int node_id, double value);
-		void add_values(std::vector<double> values);
+		history_buffers(int length, double dt);
+		virtual double get_value(double delay, int var_id)=0;
+		double get_value_at(int position, int var_id);
+		//todo get_values_at
+		//void add_value(int node_id, double value);
+		void add_values( std::vector<double> values);
 		friend std::ostream& operator<< (std::ostream &out, history_buffers &h_bufs);
 };
 
@@ -22,8 +25,8 @@ class history_buffers {
 class lint_history: public history_buffers{
 	double linear_interpolate( double y1, double y2, double mu);
 	public:
-		lint_history(std::vector<int> n_verts, double dt):history_buffers(n_verts, dt){};
-		double get_value(int node_id, double time);
+		lint_history(int n_vars, double dt):history_buffers(n_vars, dt){};
+		double get_value(double delay, int var_id);
 };
 
 //class hermite_history: public history_buffers{
