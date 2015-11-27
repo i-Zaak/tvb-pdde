@@ -1,7 +1,9 @@
-#include<vector>
+#include <vector>
 #include <boost/circular_buffer.hpp>
 #include <iostream>
 #include <boost/math/special_functions/hermite.hpp>
+#include "common.h"
+
 
 /**
  Buffers for single population described by multiple state variables.
@@ -16,7 +18,7 @@ class history_buffers {
 		double get_value_at(int position, int var_id);
 		//todo get_values_at
 		//void add_value(int node_id, double value);
-		void add_values( std::vector<double> values);
+		void add_state( local_state_type state);
 		friend std::ostream& operator<< (std::ostream &out, history_buffers &h_bufs);
 };
 

@@ -1,18 +1,4 @@
-// state variables of single population
-typedef local_state_type std::vector<double>; 
-
-// coupling variables of single population
-typedef local_coupling_type std::vector<double>; 
-
-// coupling variables of all populations
-typedef global_coupling_type std::vector< std::vector<double> >;
-
-// connectivity pattern between populations: to x from (sparse)
-typedef connectivity_type std::vector<double> 
-
-// history buffers for state variables for all populations
-typedef global_history_type std::vector< history_buffers >; 
-
+#include "common.h"
 /**
  Provides `dfun` function to evaluate the right-hand side of the model for
  single population. Also holds the constants. Sizes of the arrays are fixed 

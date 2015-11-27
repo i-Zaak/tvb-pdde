@@ -21,9 +21,9 @@ double history_buffers::get_value_at(int position,int var_id)
 //	buffers[node_id].push_front(value);
 //}
 
-void history_buffers::add_values(std::vector<double> values)
+void history_buffers::add_state(local_state_type state)
 {
-	buffer.push_front(values);
+	buffer.push_front(state);
 }
 
 std::ostream& operator<< (std::ostream &out,history_buffers &h_bufs )

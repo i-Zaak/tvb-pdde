@@ -11,7 +11,7 @@ TEST_CASE( "Pushing to history", "[history]" ) {
 		for (int j = 0; j < 3;j++){
 			vals[j] = i+j;
 		}
-		h_bufs.add_values(vals);
+		h_bufs.add_state(vals);
 	}
 	
 	REQUIRE( h_bufs.get_value_at(0,0) == Approx(7) );
@@ -29,7 +29,7 @@ TEST_CASE( "History interpolation", "[history]" ) {
 		for (int j = 0; j < 3;j++){
 			vals[j] = i+j;
 		}
-		h_bufs.add_values(vals);
+		h_bufs.add_state(vals);
 	}
 	REQUIRE( h_bufs.get_value(0.0,0) == Approx(9) );
 	REQUIRE( h_bufs.get_value(0.0,1) == Approx(10) );
