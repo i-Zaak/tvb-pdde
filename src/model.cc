@@ -15,9 +15,3 @@ void generic_oscillator::operator()(	const local_state_type &phi,
 
 
 }
-
-void linear_coupling::operator()(	const connectivity_type &connectivity,
-									const global_state_type &state,
-									global_coupling_type &coupling)
-{
-}
