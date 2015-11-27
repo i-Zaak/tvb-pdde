@@ -79,6 +79,7 @@ class linear_coupling:population_coupling
 
 /**
  Performs the main integration loop for every node:
+  * query history
   * evaluate coupling
   * perform integration step
   * update history
