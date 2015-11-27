@@ -3,12 +3,12 @@
 #include <exception>
 
 typedef boost::circular_buffer< std::vector<double> > state_buffer;
-typedef std::vector<double> state;
 
-history_buffers::history_buffers( int length, double dt )
+history_buffers::history_buffers( int length, double dt, unsigned int n_vars )
 {
 	this->buffer = state_buffer(length);
 	this->dt = dt;
+	this->n_vars = n_vars;
 }
 
 double history_buffers::get_value_at(int position,int var_id)
@@ -16,13 +16,18 @@ double history_buffers::get_value_at(int position,int var_id)
 	return buffer[position][var_id];
 }
 
-//void history_buffers::add_value(int node_id, double value)
-//{
-//	buffers[node_id].push_front(value);
-//}
+local_state_type history_buffers::get_values(double delay)
+{
+	local_state_type state = local_state_type(this->n_vars, 0.0);
+	for(int i = 0; i < this->n_vars; i++){
+		state[i] = this->get_value(delay, i);
+	}
+	return state;
+}
 
 void history_buffers::add_state(local_state_type state)
 {
+	assert(state.size() == this->n_vars);
 	buffer.push_front(state);
 }
 
@@ -33,7 +38,7 @@ std::ostream& operator<< (std::ostream &out,history_buffers &h_bufs )
 			buffer != h_bufs.buffer.end(); buffer++ ){
 		out << std::distance(h_bufs.buffer.begin(), buffer) << ": [ "; 
 
-		for( 	state::iterator it = buffer->begin(); 
+		for( 	local_state_type::iterator it = buffer->begin(); 
 				it != buffer->end(); it++ ){
 			out << *it << " ";
 		}
@@ -60,6 +65,8 @@ double lint_history::get_value(double delay,int var_id)
 
 	return linear_interpolate(y1,y2, mu);
 }
+
+
 
 //double hermite_history::get_value_t(int node_id, double time)
 //{

@@ -12,9 +12,11 @@ class history_buffers {
 	protected:
 		boost::circular_buffer< std::vector<double> > buffer;
 		double dt;
+		unsigned int n_vars;
 	public:
-		history_buffers(int length, double dt);
+		history_buffers(int length, double dt, unsigned int n_vars);
 		virtual double get_value(double delay, int var_id)=0;
+		local_state_type get_values(double delay);
 		double get_value_at(int position, int var_id);
 		//todo get_values_at
 		//void add_value(int node_id, double value);
@@ -27,7 +29,7 @@ class history_buffers {
 class lint_history: public history_buffers{
 	double linear_interpolate( double y1, double y2, double mu);
 	public:
-		lint_history(int n_vars, double dt):history_buffers(n_vars, dt){};
+		lint_history(int length, double dt, unsigned int n_vars):history_buffers(length, dt, n_vars){};
 		double get_value(double delay, int var_id);
 };
 
