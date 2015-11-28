@@ -13,7 +13,8 @@ TEST_SOURCES = tests/main.cc \
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
 
 SOURCES = src/coupling.cc \
-		  src/history.cc 
+		  src/history.cc \
+		  src/model.cc 
 
 OBJS = $(SOURCES:.cc=.o)
 

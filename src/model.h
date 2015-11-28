@@ -20,26 +20,38 @@ class population_model
 									local_state_type &dphidt)=0;
 };
 
-class generic_oscillator:population_model
+class generic_2D_oscillator:population_model
 {
 	private:
-		double tau = 1.0;
-		double a = -2.0;
-		double b = -10.0;
-		double c = 0.0;
-		double I = 0.0;
-		double d = 0.02;
-		double e = 3.0;
-		double f = 1.0;
-		double g = 0.0;
-		double alpha = 1.0;
-		double beta = 1.0;
-		double gamma = 1.0;
+		double tau;
+		double a;
+		double b;
+		double c;
+		double I;
+		double d;
+		double e;
+		double f;
+		double g;
+		double alpha;
+		double beta;
+		double gamma;
 	public:
 		inline unsigned int n_vars() {
 			return 2;
 		}
+		generic_2D_oscillator(	double tau = 1.0,
+								double a = -2.0,
+								double b = -10.0,
+								double c = 0.0,
+								double I = 0.0,
+								double d = 0.02,
+								double e = 3.0,
+								double f = 1.0,
+								double g = 0.0,
+								double alpha = 1.0,
+								double beta = 1.0,
+								double gamma = 1.0	);//TODO inline?
 		void operator()(	const local_state_type &phi, 
 							const local_coupling_type &coupling, 
 							local_state_type &dphidt);
-}
+};
