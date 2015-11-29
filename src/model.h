@@ -20,7 +20,7 @@ class population_model
 									local_state_type &dphidt)=0;
 };
 
-class generic_2D_oscillator:population_model
+class generic_2d_oscillator:population_model
 {
 	private:
 		double tau;
@@ -39,7 +39,7 @@ class generic_2D_oscillator:population_model
 		inline unsigned int n_vars() {
 			return 2;
 		}
-		generic_2D_oscillator(	double tau = 1.0,
+		generic_2d_oscillator(	double tau = 1.0,
 								double a = -2.0,
 								double b = -10.0,
 								double c = 0.0,

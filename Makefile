@@ -8,7 +8,8 @@ LIBS =
 
 TEST_SOURCES = tests/main.cc \
 			   tests/history_tests.cc \
-			   tests/coupling_tests.cc
+			   tests/coupling_tests.cc \
+			   tests/model_tests.cc
 
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
 
