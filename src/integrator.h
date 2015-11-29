@@ -18,6 +18,11 @@ class integrator
 		double dt;
 		virtual void scheme(local_state_type &new_state)=0; // the actual integration scheme
 		void step();
+		void dfun_eval(	unsigned int node,
+						const local_state_type phi, 
+						double time_offset, 
+						local_state_type &dphidt);
+
 	public:
 		integrator(	population_model model,
 					model_coupling coupling,
