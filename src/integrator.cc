@@ -4,6 +4,7 @@ integrator(	population_model model,
 			model_coupling coupling,
 			global_connectivity_type connectivity,
 			global_history_type initial_conditions,
+			unsigned long n_nodes,
 			double dt)
 {
 	this->model = model;
@@ -11,6 +12,7 @@ integrator(	population_model model,
 	this->connectivity = connectivity;
 	this->history = initial_conditions;
 	this->dt = dt;
+	this->n_nodes = n_nodes
 }
 
 void integrator::operator(unsigned int n_steps)
@@ -23,19 +25,25 @@ void integrator::operator(unsigned int n_steps)
 
 void integrator::step()
 {
-	for(global_state_type::size_type i=0; i< this->global_state; i++){
-		//scheme
+	global_state_type global_state = global_state_type(this->n_nodes);
+	local_state_type local_state = local_state_type(this->model.n_vars());
+
+	// compute new state phi(t_{n+1})
+	for(unsigned long node=0; node< this->n_nodes; node++){
+		scheme(node, local_state); 
+		global_state[node] = local_state;
 	}
-	for(global_state_type::size_type i=0; i< this->global_state; i++){
-		//update state
-		//update history
+
+	// update history
+	for(unsigned long node=0; node< this->n_nodes; i++){
+		this->history[node]->add_state(global_state[node]);
 	}
 
 }
 
 /**
  Wraps the coupling and local model evaluation to one reasonable function call.
- To be used in the integrator scheme.
+ To be used in the integrator scheme instead of direct calls to model/coupling.
  */
 void integrator::dfun_eval(	unsigned int node,
 							const local_state_type phi, 
