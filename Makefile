@@ -5,6 +5,8 @@ CFLAGS = -Wall -g
 INCLUDES = -Isrc
 LFLAGS =
 LIBS =
+SUFFIXES += .d
+
 
 TEST_SOURCES = tests/main.cc \
 			   tests/history_tests.cc \
@@ -21,6 +23,13 @@ SOURCES = src/coupling.cc \
 
 OBJS = $(SOURCES:.cc=.o)
 
+SRC= $(SOURCES) $(TEST_SOURCES)
+DEPFILES:=$(patsubst %.cc,%.d,$(SRC))
+%.d: %.cc
+	$(CC) $(CFLAGS) $(INCLUDES) -MM -MT '$(patsubst %.cc,%.o,$<)' $< -MF $@
+
+-include $(DEPFILES)
+
 bin/tests: $(TEST_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/tests $(TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
@@ -31,7 +40,7 @@ bin:
 	mkdir $@
 
 clean:
-	rm -rf bin/* src/*.o tests/*.o
+	rm -rf bin/* src/*.o tests/*.o src/*.d tests/*.d
 
 test:bin/tests
 	./bin/tests
