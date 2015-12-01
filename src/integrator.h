@@ -1,4 +1,10 @@
+#ifndef INTEGRATOR_H
+#define INTEGRATOR_H	
+
 #include "common.h"
+#include "model.h"
+#include "history.h"
+#include "coupling.h"
 /**
  Performs the main integration loop for every node:
   * query history
@@ -12,7 +18,7 @@ class integrator
 {
 	protected:
 		population_model model; //could be private
-		model_coupling coupling; //could be private
+		population_coupling coupling; //could be private
 		global_connectivity_type connectivity; //could be private
 		global_history_type history; //could be private
 		double dt;
@@ -25,8 +31,8 @@ class integrator
 						local_state_type &dphidt);
 
 	public:
-		integrator(	population_model model,
-					model_coupling coupling,
+		integrator(	population_model &model,
+					population_coupling coupling,
 					global_connectivity_type connectivity,
 					global_history_type initial_conditions,
 					unsigned long n_nodes,
@@ -55,3 +61,4 @@ class euler_deterministic:integrator
 							){};
 };
 
+#endif
