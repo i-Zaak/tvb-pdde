@@ -23,10 +23,11 @@ class population_coupling
 		//population_coupling(global_connectivity_type connectivity);
 		virtual void operator()(	const local_connectivity_type &connectivity,
 									const global_history_type &history,
-									local_coupling_type &coupling)=0;
+									local_coupling_type &coupling,
+									double time_offset)=0;
 };
 
-class linear_coupling:population_coupling
+class linear_coupling : public population_coupling
 {
 	private:
 		double a;
@@ -36,7 +37,9 @@ class linear_coupling:population_coupling
 		linear_coupling(double a=1.0, double b=0.0);
 		void operator()(	const local_connectivity_type &connectivity,
 									const global_history_type &state,
-									local_coupling_type &coupling);
+									local_coupling_type &coupling,
+									double time_offset = 0.0
+									);
 };
 
 #endif

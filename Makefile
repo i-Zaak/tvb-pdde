@@ -28,14 +28,16 @@ bin/tests: $(TEST_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 
+clean:
+	    $(RM) $(OBJS)
 bin:
 	mkdir $@
-
-#bin/tests:tests/history_tests.cc tests/coupling_tests.cc src/coupling.cc src/history.cc src/history.h
-#	g++ -Wall -g -Isrc tests/history_tests.cc tests/coupling_tests.cc src/history.cc src/coupling.cc -o bin/tests
 
 clean:
 	rm -rf bin/* src/*.o tests/*.o
 
-runtests:bin/tests
+test:bin/tests
 	./bin/tests
+
+test-gdb:bin/tests
+	gdb ./bin/tests

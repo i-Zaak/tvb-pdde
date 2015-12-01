@@ -21,8 +21,7 @@ class history_buffers {
 		virtual double get_value(double delay, int var_id)=0;
 		local_state_type get_values(double delay);
 		double get_value_at(int position, int var_id);
-		//todo get_values_at
-		//void add_value(int node_id, double value);
+		local_state_type get_values_at(int position);
 		void add_state( local_state_type state);
 		friend std::ostream& operator<< (std::ostream &out, history_buffers &h_bufs);
 };

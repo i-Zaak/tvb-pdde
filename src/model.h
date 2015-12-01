@@ -23,7 +23,7 @@ class population_model
 									local_state_type &dphidt)=0;
 };
 
-class generic_2d_oscillator:population_model
+class generic_2d_oscillator : public population_model
 {
 	private:
 		double tau;

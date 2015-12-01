@@ -19,8 +19,18 @@ double history_buffers::get_value_at(int position,int var_id)
 local_state_type history_buffers::get_values(double delay)
 {
 	local_state_type state = local_state_type(this->n_vars, 0.0);
-	for(int i = 0; i < this->n_vars; i++){
+	for(unsigned int i = 0; i < this->n_vars; i++){
 		state[i] = this->get_value(delay, i);
+	}
+	return state;
+}
+
+local_state_type history_buffers::get_values_at(int position)
+{
+
+	local_state_type state = local_state_type(this->n_vars, 0.0);
+	for(unsigned int i = 0; i < this->n_vars; i++){
+		state[i] = this->get_value_at(position, i);
 	}
 	return state;
 }
