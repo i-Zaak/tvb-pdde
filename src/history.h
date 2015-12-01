@@ -1,3 +1,6 @@
+#ifndef HISTORY_H
+#define HISTORY_H
+
 #include <vector>
 #include <boost/circular_buffer.hpp>
 #include <iostream>
@@ -33,13 +36,4 @@ class lint_history: public history_buffers{
 		double get_value(double delay, int var_id);
 };
 
-//class hermite_history: public history_buffers{
-//	std::vector<int> timesteps;
-//	double hermite_interpolate(	double y0, double y1,
-//								double y2, double y3,
-//								double mu, double tension,
-//								double bias);
-//	public:
-//		interpolated_history(std::vector<int> n_verts, double dt);
-//		double get_value(int node_id, double time);
-//};
+#endif

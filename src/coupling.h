@@ -1,3 +1,6 @@
+#ifndef COUPLING_H
+#define COUPLING_H	
+
 #include "common.h"
 #include "history.h"
 
@@ -35,3 +38,5 @@ class linear_coupling:population_coupling
 									const global_history_type &state,
 									local_coupling_type &coupling);
 };
+
+#endif

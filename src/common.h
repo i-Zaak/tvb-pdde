@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 #include <vector>
 class history_buffers;
 
@@ -19,3 +22,4 @@ struct connection;
 typedef std::vector< std::vector< connection > > global_connectivity_type; 
 // connectivity pattern for single population 
 typedef std::vector< connection > local_connectivity_type; 
+#endif

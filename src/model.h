@@ -1,3 +1,6 @@
+#ifndef MODEL_H
+#define MODEL_H
+
 #include "common.h"
 /**
  Provides `dfun` function to evaluate the right-hand side of the model for
@@ -55,3 +58,5 @@ class generic_2d_oscillator:population_model
 							const local_coupling_type &coupling, 
 							local_state_type &dphidt);
 };
+
+#endif
