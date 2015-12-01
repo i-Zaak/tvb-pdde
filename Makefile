@@ -27,9 +27,6 @@ bin/tests: $(TEST_OBJS) $(OBJS) bin
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
-
-clean:
-	    $(RM) $(OBJS)
 bin:
 	mkdir $@
 

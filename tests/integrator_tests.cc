@@ -43,10 +43,10 @@ TEST_CASE("Integration time stepping", "[euler method]")
 	for(unsigned long i = 0; i< n_nodes; i++){
 		if(i == 3){
 			REQUIRE(integrator.history[i]->get_value_at(0,0) != Approx(integrator.history[0]->get_value_at(0,0)));
-			//REQUIRE(integrator.history[i]->buffer[0][1] != Approx(integrator.history[0]->buffer[0][1]));
+			REQUIRE(integrator.history[i]->get_value_at(0,1) != Approx(integrator.history[0]->get_value_at(0,1)));
 		}else{
-			//REQUIRE(integrator.history[i]->buffer[0][0] == Approx(integrator.history[0]->buffer[0][0]));
-			//REQUIRE(integrator.history[i]>buffer[0][1] == Approx(integrator.history[0]->buffer[0][1]));
+			REQUIRE(integrator.history[i]->get_value_at(0,0) == Approx(integrator.history[0]->get_value_at(0,0)));
+			REQUIRE(integrator.history[i]->get_value_at(0,1) == Approx(integrator.history[0]->get_value_at(0,1)));
 		}
 	}
 }
