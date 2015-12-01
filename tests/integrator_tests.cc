@@ -1,6 +1,7 @@
 #include "catch.hpp"
 #include "integrator.h"
 
+//TODO refactor a lot of the initialization to constructors/configuration...
 TEST_CASE("Integration time stepping", "[euler method]")
 {
 	unsigned long n_nodes = 13;
@@ -35,8 +36,12 @@ TEST_CASE("Integration time stepping", "[euler method]")
 		}
 	}
 
+	raw_observer *observer = new raw_observer(n_nodes); //this could be in the integrator constructor
 
-	euler_deterministic integrator = euler_deterministic(model, coupling, connectivity, initial_conditions, n_nodes, dt);
+
+	euler_deterministic integrator = euler_deterministic(
+			model, coupling, connectivity, initial_conditions, observer,
+			n_nodes, dt);
 
 	integrator(5);
 

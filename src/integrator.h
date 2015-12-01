@@ -5,6 +5,7 @@
 #include "model.h"
 #include "history.h"
 #include "coupling.h"
+#include "observer.h"
 /**
  Performs the main integration loop for every node:
   * query history
@@ -19,10 +20,13 @@ class integrator
 	protected:
 		population_model *model; //could be private
 		population_coupling *coupling; //could be private
+		solution_observer *observer; //could be private
 		global_connectivity_type connectivity; //could be private
 		double dt;
 		unsigned long n_nodes;
-		virtual void scheme(unsigned int node, local_state_type &new_state)=0; // the actual integration scheme
+		// the actual integration scheme, performs one step and returns the
+		// length of the step in time
+		virtual double scheme(unsigned int node, local_state_type &new_state)=0; 
 		void step();
 		void dfun_eval(	unsigned int node,
 						const local_state_type phi, 
@@ -35,6 +39,7 @@ class integrator
 					population_coupling *coupling,
 					const global_connectivity_type &connectivity,
 					const global_history_type &initial_conditions,
+					solution_observer *observer,
 					unsigned long n_nodes,
 					double dt);
 		void operator()(unsigned int n_steps);
@@ -43,16 +48,18 @@ class integrator
 class euler_deterministic : public integrator
 {
 	private:
-		void scheme(unsigned int node, local_state_type &new_state);
+		double scheme(unsigned int node, local_state_type &new_state);
 	public:
 		euler_deterministic(	population_model *model,
 								population_coupling *coupling,
 								const global_connectivity_type &connectivity,
 								const global_history_type &initial_conditions,
+								solution_observer *observer,
 								unsigned long n_nodes,
 								double dt
 							):integrator( 	model, coupling, connectivity, 
-											initial_conditions, n_nodes, dt
+											initial_conditions, observer,
+											n_nodes, dt
 							){};
 };
 

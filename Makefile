@@ -12,14 +12,16 @@ TEST_SOURCES = tests/main.cc \
 			   tests/history_tests.cc \
 			   tests/coupling_tests.cc \
 			   tests/model_tests.cc \
-			   tests/integrator_tests.cc
+			   tests/integrator_tests.cc \
+			   tests/observer_tests.cc
 
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
 
 SOURCES = src/coupling.cc \
 		  src/history.cc \
 		  src/model.cc \
-		  src/integrator.cc 
+		  src/integrator.cc \
+		  src/observer.cc 
 
 OBJS = $(SOURCES:.cc=.o)
 

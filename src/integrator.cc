@@ -4,6 +4,7 @@ integrator::integrator(	population_model *model,
 						population_coupling *coupling,
 						const global_connectivity_type &connectivity,
 						const global_history_type &initial_conditions,
+					solution_observer *observer,
 						unsigned long n_nodes,
 						double dt)
 {
@@ -11,6 +12,7 @@ integrator::integrator(	population_model *model,
 	this->coupling = coupling;
 	this->connectivity = connectivity;
 	this->history = initial_conditions;
+	this->observer = observer;
 	this->dt = dt;
 	this->n_nodes = n_nodes;
 }
@@ -19,7 +21,6 @@ void integrator::operator()(unsigned int n_steps)
 {
 	for(unsigned int i=0;i<n_steps;i++) {
 		step();
-		//TODO push the state to observer
 	}
 }
 
@@ -30,15 +31,20 @@ void integrator::step()
 
 	// compute new state phi(t_{n+1})
 	for(unsigned long node=0; node< this->n_nodes; node++){
-		scheme(node, local_state); 
+		double time; //of the next step
+		time = scheme(node, local_state); 
 		global_state[node] = local_state;
+
+		// observe and behold
+		(*this->observer)(node, local_state, time);
 	}
 
 	// update history
 	for(unsigned long node=0; node< this->n_nodes; node++){
+		// this can be run only after all nodes are done
 		this->history[node]->add_state(global_state[node]);
 	}
-
+	
 }
 
 /**
@@ -61,13 +67,14 @@ void integrator::dfun_eval(	unsigned int node,
 					dphidt);
 }
 
-void euler_deterministic::scheme(unsigned int node, local_state_type &new_state)
+double euler_deterministic::scheme(unsigned int node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
 	local_state_type dphidt = local_state_type(this->model->n_vars());
 	this->dfun_eval(node, phi, 0.0, dphidt);
 	for(local_state_type::size_type dim=0; dim<phi.size();dim++){
-		//X + self.dt * (self.dX + stimulus)
 		new_state[dim] = phi[dim] + this->dt * dphidt[dim];
 	}
+
+	return this->dt; //eqidistant timestepping here
 }

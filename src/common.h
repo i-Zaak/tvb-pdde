@@ -22,4 +22,12 @@ struct connection;
 typedef std::vector< std::vector< connection > > global_connectivity_type; 
 // connectivity pattern for single population 
 typedef std::vector< connection > local_connectivity_type; 
+
+// observed global solution nodes x times x (time,local_state)
+typedef std::vector< std::vector< std::pair< double, std::vector<double> > > > global_solution_type;
+// observed local solution times x (time,local_state)
+typedef std::vector< std::pair< double, std::vector<double> > > local_solution_type;
+// observed solution at single time step (time,local_state)
+typedef std::pair< double, std::vector<double> > solution_pair_type;
+
 #endif
