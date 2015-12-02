@@ -44,14 +44,18 @@ TEST_CASE("Integration time stepping", "[euler method]")
 			n_nodes, dt);
 
 	integrator(5);
-
+	REQUIRE(observer->get_solution()[0][0].second[0] ==Approx(1.620736) );
+	REQUIRE(observer->get_solution()[0][0].second[1] ==Approx(1.5216) );
+	REQUIRE(observer->get_solution()[0][4].second[0] ==Approx(1.70200895) );
+	REQUIRE(observer->get_solution()[0][4].second[1] ==Approx(1.20292698) );
 	for(unsigned long i = 0; i< n_nodes; i++){
 		if(i == 3){
-			REQUIRE(integrator.history[i]->get_value_at(0,0) != Approx(integrator.history[0]->get_value_at(0,0)));
-			REQUIRE(integrator.history[i]->get_value_at(0,1) != Approx(integrator.history[0]->get_value_at(0,1)));
+			REQUIRE(observer->get_solution()[i][4].second[0] != observer->get_solution()[0][4].second[0]);
+			REQUIRE(observer->get_solution()[i][4].second[1] != observer->get_solution()[0][4].second[1]);
 		}else{
-			REQUIRE(integrator.history[i]->get_value_at(0,0) == Approx(integrator.history[0]->get_value_at(0,0)));
-			REQUIRE(integrator.history[i]->get_value_at(0,1) == Approx(integrator.history[0]->get_value_at(0,1)));
+			REQUIRE(observer->get_solution()[i][4].second[0] == observer->get_solution()[0][4].second[0]);
+			REQUIRE(observer->get_solution()[i][4].second[1] == observer->get_solution()[0][4].second[1]);
 		}
 	}
+
 }
