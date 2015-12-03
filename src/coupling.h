@@ -3,14 +3,8 @@
 
 #include "common.h"
 #include "history.h"
+#include "connectivity.h"
 
-struct connection
-{
-	int from;
-	//int to;
-	double delay;
-	double weight;
-};
 
 /**
  Computes the remote contributions between populations. 
