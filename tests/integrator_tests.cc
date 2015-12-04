@@ -43,7 +43,7 @@ TEST_CASE("Integration time stepping", "[euler method]")
 
 		euler_deterministic integrator = euler_deterministic(
 				model, coupling, connectivity, initial_conditions, observer,
-				n_nodes, dt);
+				dt);
 
 		integrator(5);
 		REQUIRE(observer->get_solution()[0][0].second[0] ==Approx(1.620736) );

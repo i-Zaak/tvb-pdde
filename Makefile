@@ -1,4 +1,4 @@
-all:bin/tests 
+all:bin/tests bin/seq_bench
 
 CC = g++
 CFLAGS = -Wall -g

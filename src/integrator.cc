@@ -6,7 +6,6 @@ integrator::integrator(	population_model *model,
 						const global_connectivity_type &connectivity,
 						const global_history_type &initial_conditions,
 					solution_observer *observer,
-						unsigned long n_nodes,
 						double dt)
 {
 	this->model = model;
@@ -15,7 +14,7 @@ integrator::integrator(	population_model *model,
 	this->history = initial_conditions;
 	this->observer = observer;
 	this->dt = dt;
-	this->n_nodes = n_nodes;
+	this->n_nodes = initial_conditions.size();
 }
 
 void integrator::operator()(unsigned int n_steps)

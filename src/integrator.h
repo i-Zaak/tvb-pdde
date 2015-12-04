@@ -40,7 +40,6 @@ class integrator
 					const global_connectivity_type &connectivity,
 					const global_history_type &initial_conditions,
 					solution_observer *observer,
-					unsigned long n_nodes,
 					double dt);
 		static global_history_type constant_initial_conditions(
 				const global_connectivity_type &connectivity,
@@ -62,11 +61,10 @@ class euler_deterministic : public integrator
 								const global_connectivity_type &connectivity,
 								const global_history_type &initial_conditions,
 								solution_observer *observer,
-								unsigned long n_nodes,
 								double dt
 							):integrator( 	model, coupling, connectivity, 
 											initial_conditions, observer,
-											n_nodes, dt
+											dt
 							){};
 };
 
