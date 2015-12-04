@@ -23,16 +23,22 @@ SOURCES = src/coupling.cc \
 		  src/model.cc \
 		  src/integrator.cc \
 		  src/observer.cc \
-		  src/connectivity.cc
-
+		  src/connectivity.cc 
 OBJS = $(SOURCES:.cc=.o)
 
-SRC= $(SOURCES) $(TEST_SOURCES)
+TOOL_SOURCES = src/seq_bench.cc
+TOOL_OBJS = $(TOOL_SOURCES:.cc=.o)
+
+
+SRC= $(SOURCES) $(TEST_SOURCES) $(TOOL_SOURCES)
 DEPFILES:=$(patsubst %.cc,%.d,$(SRC))
 %.d: %.cc
 	$(CC) $(CFLAGS) $(INCLUDES) -MM -MT '$(patsubst %.cc,%.o,$<)' $< -MF $@
 
 -include $(DEPFILES)
+
+bin/seq_bench: $(TOOL_OBJS) $(OBJS) bin
+	$(CC) $(CFLAGS) $(INCLUDES) -o bin/seq_bench $(TOOL_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
 bin/tests: $(TEST_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/tests $(TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)

@@ -78,3 +78,19 @@ double euler_deterministic::scheme(unsigned int node, local_state_type &new_stat
 
 	return this->dt; //eqidistant timestepping here
 }
+
+
+static global_history_type integrator::constant_initial_conditions(
+		global_connectivity_type connectivity,
+		local_state_type values)
+{
+
+	global_history_type initial_conditions = global_history_type(global_connectivity_type.size());
+
+	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
+		initial_conditions[i] = new lint
+		for(local_connectivity_type::size_type j=0; j< connectivity[i].size(); j++)	{
+			// TODO!!!!!!!!!!!
+		}
+}
+

@@ -48,3 +48,8 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 
 
 }
+
+generic_2d_oscillator* generic_2d_oscillator_factory::create_model()
+{
+	return new generic_2d_oscillator();
+}

@@ -11,6 +11,13 @@ history_buffers::history_buffers( int length, double dt, unsigned int n_vars )
 	this->n_vars = n_vars;
 }
 
+history_buffers::history_buffers( const history_buffers& other )
+{
+	this->buffer = state_buffer(other.buffer);
+	this->dt = other.dt;
+	this->n_vars = other.n_vars;
+}
+
 double history_buffers::get_value_at(int position,int var_id)
 {
 	return buffer[position][var_id];
