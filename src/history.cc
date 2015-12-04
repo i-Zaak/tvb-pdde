@@ -80,12 +80,16 @@ double lint_history::linear_interpolate( double y1, double y2, double mu)
 double lint_history::get_value(double delay,int var_id)
 {
 	int i1 = floor(delay/dt);
-	int i2 = i1+1;
 	double mu = (delay - i1*dt)/dt;
-	double y1 = get_value_at(i1, var_id);
-	double y2 = get_value_at(i2, var_id);
+	if (mu < std::numeric_limits<double>::epsilon() ) {
+		return get_value_at(i1, var_id);
+	}else{
+		int i2 = i1+1;
+		double y1 = get_value_at(i1, var_id);
+		double y2 = get_value_at(i2, var_id);
 
-	return linear_interpolate(y1,y2, mu);
+		return linear_interpolate(y1,y2, mu);
+	}
 }
 
 lint_history* lint_history_factory::create_history(int length, double dt, unsigned int n_vars)
