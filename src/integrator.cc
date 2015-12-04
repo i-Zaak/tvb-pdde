@@ -1,4 +1,5 @@
 #include "integrator.h"
+#include "math.h"
 
 integrator::integrator(	population_model *model,
 						population_coupling *coupling,
@@ -80,17 +81,36 @@ double euler_deterministic::scheme(unsigned int node, local_state_type &new_stat
 }
 
 
-static global_history_type integrator::constant_initial_conditions(
-		global_connectivity_type connectivity,
-		local_state_type values)
+global_history_type integrator::constant_initial_conditions(
+		const global_connectivity_type &connectivity,
+		const local_state_type &values,
+		history_factory* history,
+		population_model* model,
+		double dt)
 {
 
-	global_history_type initial_conditions = global_history_type(global_connectivity_type.size());
-
+	global_history_type initial_conditions = global_history_type(connectivity.size());
+	
+	// determine buffer lengths
+	std::vector<double> max_delays = std::vector<double>(connectivity.size(),0.0);
 	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		initial_conditions[i] = new lint
 		for(local_connectivity_type::size_type j=0; j< connectivity[i].size(); j++)	{
-			// TODO!!!!!!!!!!!
+			connection conn = connectivity[i][j];
+			if ( max_delays[conn.from] < conn.delay) {
+				max_delays[conn.from] = conn.delay;
+			}
 		}
+	}
+
+	// create buffers and fill with constant state
+	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
+		int length = ceil(max_delays[i] / dt)+1;
+		initial_conditions[i] = history->create_history(length, dt, model->n_vars());
+		for(int j = 0; j < length; j++) {
+			initial_conditions[i]->add_state(values);
+		}
+	}
+
+	return initial_conditions;
 }
 

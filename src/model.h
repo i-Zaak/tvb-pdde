@@ -23,15 +23,10 @@ class population_model
 									local_state_type &dphidt)=0;
 };
 
-class population_model_factory
-{
-	public:
-		virtual population_model* create_model()=0;
-};
-
 class generic_2d_oscillator : public population_model
 {
 	private:
+		// todo setters
 		double tau;
 		double a;
 		double b;
@@ -45,7 +40,6 @@ class generic_2d_oscillator : public population_model
 		double beta;
 		double gamma;
 	public:
-		// todo setters
 		inline unsigned int n_vars() {
 			return 2;
 		}
@@ -64,12 +58,6 @@ class generic_2d_oscillator : public population_model
 		void operator()(	const local_state_type &phi, 
 							const local_coupling_type &coupling, 
 							local_state_type &dphidt);
-};
-
-class generic_2d_oscillator_factory
-{
-	public:
-		generic_2d_oscillator* create_model();
 };
 
 #endif

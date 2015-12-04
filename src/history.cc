@@ -18,6 +18,11 @@ history_buffers::history_buffers( const history_buffers& other )
 	this->n_vars = other.n_vars;
 }
 
+int history_buffers::get_length()
+{
+	return this->buffer.size();
+}
+
 double history_buffers::get_value_at(int position,int var_id)
 {
 	return buffer[position][var_id];
@@ -83,7 +88,10 @@ double lint_history::get_value(double delay,int var_id)
 	return linear_interpolate(y1,y2, mu);
 }
 
-
+lint_history* lint_history_factory::create_history(int length, double dt, unsigned int n_vars)
+{
+	return new lint_history(length, dt, n_vars);
+}
 
 //double hermite_history::get_value_t(int node_id, double time)
 //{

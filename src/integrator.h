@@ -42,7 +42,13 @@ class integrator
 					solution_observer *observer,
 					unsigned long n_nodes,
 					double dt);
-		static global_history_type constant_initial_conditions(global_connectivity_type connectivity, double value);
+		static global_history_type constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const local_state_type &values,
+				history_factory* history,
+				population_model* model,
+				double dt);
+
 		void operator()(unsigned int n_steps);
 };
 
