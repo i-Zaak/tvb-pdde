@@ -33,6 +33,7 @@ int main(int argc, char* argv[])
 			model, coupling, connectivity, initial_conditions, observer,
 			dt);
 
-
+	integrator(n_steps);
+	//TODO save results
 	return 0;
 }
