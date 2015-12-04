@@ -1,7 +1,7 @@
 #include "catch.hpp"
 #include "connectivity.h"
 
-TEST_CASE("Rading connectivity from .mtx file", "[connectivity io]"){
+TEST_CASE("Reading connectivity from .mtx file", "[connectivity io]"){
 	global_connectivity_type connectivity = connectivity_from_mtx("data/conn500.mtx");
 	REQUIRE(connectivity.size() == 561);
 	REQUIRE(connectivity[0].size() == 5);

@@ -23,20 +23,6 @@ TEST_CASE("Integration time stepping", "[euler method]")
 
 	linear_coupling *coupling = new linear_coupling();
 	
-	/*
-	global_history_type initial_conditions = global_history_type(n_nodes); // this should be possible to generate from connectivity...
-	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		local_state_type state = local_state_type(model->n_vars(),1.6); // just some initial state
-		if(i==2){
-			initial_conditions[i] = new lint_history(2,dt,model->n_vars());
-			initial_conditions[i]->add_state(state);
-			initial_conditions[i]->add_state(state);
-		} else {
-			initial_conditions[i] = new lint_history(1,dt,model->n_vars());
-			initial_conditions[i]->add_state(state);
-		}
-	}
-	*/
 	lint_history_factory* history = new lint_history_factory();
 	local_state_type values = local_state_type(model->n_vars(),1.6);
 	global_history_type initial_conditions = integrator::constant_initial_conditions(
@@ -76,3 +62,24 @@ TEST_CASE("Integration time stepping", "[euler method]")
 	}
 
 }
+
+TEST_CASE("Initial conditions from connectivity" "[integrator]"){
+	// see sets_init.py for data generation
+	global_connectivity_type connectivity = connectivity_from_mtx("data/test_init.mtx");
+	REQUIRE(connectivity.size() == 20);
+
+	lint_history_factory* history = new lint_history_factory();
+	generic_2d_oscillator *model = new generic_2d_oscillator();
+	local_state_type values = local_state_type(model->n_vars(),42.0);
+	double dt=0.2;
+	global_history_type initial_conditions = integrator::constant_initial_conditions(
+			connectivity, values, history, model, dt ); 
+	static const int arr[] = {3, 4, 5, 2, 6, 3, 6, 6, 4, 5, 6, 6, 6, 6, 4, 5, 4, 5, 4, 4}; 
+	std::vector<int> expected_buflengths(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+	for(global_history_type::size_type i = 0; i < initial_conditions.size(); i++) {
+		REQUIRE(initial_conditions[i]->get_length() == expected_buflengths[i]);
+	}
+
+}
+
