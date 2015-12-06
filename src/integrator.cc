@@ -30,7 +30,7 @@ void integrator::step()
 	local_state_type local_state = local_state_type(this->model->n_vars());
 
 	// compute new state phi(t_{n+1})
-	#pragma omp parallel for
+	#pragma omp parallel for firstprivate(local_state)
 	for(unsigned long node=0; node< this->n_nodes; node++){
 		double time; //of the next step
 		time = scheme(node, local_state); 
