@@ -1,7 +1,7 @@
 all:bin/tests bin/seq_bench
 
 CC = g++
-CFLAGS = -Wall -g -fopenmp
+CFLAGS = -Wall -g #-fopenmp
 INCLUDES = -Isrc
 LFLAGS =
 LIBS =

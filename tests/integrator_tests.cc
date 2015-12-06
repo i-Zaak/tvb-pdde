@@ -52,11 +52,11 @@ TEST_CASE("Integration time stepping", "[euler method]")
 		REQUIRE(observer->get_solution()[0][4].second[1] ==Approx(1.20292698) );
 		for(unsigned long i = 0; i< n_nodes; i++){
 			if(i == 3){
-				REQUIRE(observer->get_solution()[i][4].second[0] != observer->get_solution()[0][4].second[0]);
-				REQUIRE(observer->get_solution()[i][4].second[1] != observer->get_solution()[0][4].second[1]);
+				REQUIRE(observer->get_solution()[i][4].second[0] != Approx(observer->get_solution()[0][4].second[0]));
+				REQUIRE(observer->get_solution()[i][4].second[1] != Approx(observer->get_solution()[0][4].second[1]));
 			}else{
-				REQUIRE(observer->get_solution()[i][4].second[0] == observer->get_solution()[0][4].second[0]);
-				REQUIRE(observer->get_solution()[i][4].second[1] == observer->get_solution()[0][4].second[1]);
+				REQUIRE(observer->get_solution()[i][4].second[0] == Approx(observer->get_solution()[0][4].second[0]));
+				REQUIRE(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[0][4].second[1]));
 			}
 		}
 	}
