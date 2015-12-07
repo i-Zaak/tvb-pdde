@@ -1,7 +1,7 @@
-all:bin/tests bin/seq_bench
+all:bin/tests bin/mpi_tests bin/seq_bench
 
-CC = g++
-CFLAGS = -Wall -g -fopenmp
+CC = mpic++
+CFLAGS = -Wall -g #-fopenmp
 INCLUDES = -Isrc
 LFLAGS =
 LIBS =
@@ -14,9 +14,13 @@ TEST_SOURCES = tests/main.cc \
 			   tests/model_tests.cc \
 			   tests/integrator_tests.cc \
 			   tests/observer_tests.cc \
-			   tests/connectivity_tests.cc
+			   tests/connectivity_tests.cc \
+			   tests/common_tests.cc
 
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
+
+MPI_TEST_SOURCES = tests/mpi_main.cc
+MPI_TEST_OBJS = $(MPI_TEST_SOURCES:.cc=.o)
 
 SOURCES = src/coupling.cc \
 		  src/history.cc \
@@ -43,6 +47,9 @@ bin/seq_bench: $(TOOL_OBJS) $(OBJS) bin
 bin/tests: $(TEST_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/tests $(TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
+bin/mpi_tests: $(MPI_TEST_OBJS) $(OBJS) bin
+	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_tests $(MPI_TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
+
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
@@ -52,8 +59,11 @@ bin:
 clean:
 	rm -rf bin/* src/*.o tests/*.o src/*.d tests/*.d
 
-test:bin/tests
+test:bin/tests bin/mpi_tests
+	@echo "Sequential tests"
 	./bin/tests
+	@echo "MPI tests"
+	./bin/mpi_tests
 
 test-gdb:bin/tests
 	gdb ./bin/tests

@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include <vector>
+#include <stdlib.h>
 class history_buffers;
 
 // history buffers for state variables for all populations
@@ -29,5 +30,15 @@ typedef std::vector< std::vector< std::pair< double, std::vector<double> > > > g
 typedef std::vector< std::pair< double, std::vector<double> > > local_solution_type;
 // observed solution at single time step (time,local_state)
 typedef std::pair< double, std::vector<double> > solution_pair_type;
+
+// allocator for continuous 2D array needed for MPI code
+inline double **alloc_2d_array(int n, int m) {
+    double *data = (double *)malloc(n*m*sizeof(double));
+    double **array = (double **)malloc(n*sizeof(double*));
+    for(int i=0; i<n; i++){
+		array[i] = &(data[m*i]);
+	}
+    return array;
+};
 
 #endif
