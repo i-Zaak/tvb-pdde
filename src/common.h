@@ -31,6 +31,12 @@ typedef std::vector< std::pair< double, std::vector<double> > > local_solution_t
 // observed solution at single time step (time,local_state)
 typedef std::pair< double, std::vector<double> > solution_pair_type;
 
+//maps nodes to neighboring mpi thread ids
+typedef std::vector< std::vector<int> > neighbor_map_type;
+
+// mapping of node ids
+typedef std::vector<int> node_map_type;
+
 // allocator for continuous 2D array needed for MPI code
 inline double **alloc_2d_array(int n, int m) {
     double *data = (double *)malloc(n*m*sizeof(double));

@@ -31,6 +31,23 @@ int main(int argc, char* argv[])
 			connectivity, values, history, model, dt ); 
 	linear_coupling *coupling = new linear_coupling();
 	raw_observer *observer = new raw_observer(connectivity.size());
+	// ...
+	// partition the nodes
+	// ...
+	// distribute initial state
+	//   allocate and fill lengths array
+	//   send lengths
+	//   allocate databuffer
+	//   for every circ buffer
+	//     linearize()
+	//     put into right place in buffer
+	//   send databuffer
+	//
+	// ...
+	// distribute connectivity
+	//   simmilar to initial state distribution (struct are easier to pack)
+	// ...
+	// ...
 	euler_deterministic integrator = euler_deterministic(
 			model, coupling, connectivity, initial_conditions, observer,
 			dt);

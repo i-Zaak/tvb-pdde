@@ -2,62 +2,40 @@
 #include "math.h"
 
 mpi_integrator::mpi_integrator(	population_model *model,
-						population_coupling *coupling,
-						const global_connectivity_type &connectivity,
-						const global_history_type &initial_conditions,
-					solution_observer *observer,
-						double dt)
+								population_coupling *coupling,
+								global_connectivity_type worker_connectivity,
+								global_history_type initial_conditions,
+								neighbor_map_type in_ids,
+								neighbor_map_type out_ids,
+								solution_observer *observer,
+								double dt)
 {
 	this->model = model;
 	this->coupling = coupling;
-	this->connectivity = connectivity;
 	this->history = initial_conditions;
+	// worker relative numbering
+	this->worker_connectivity = worker_connectivity;
+	// these hold the ids and oredring of overlapping nodes in the buffers
+	this->neigbor_in_ids = in_ids;
+	this->neigbor_out_ids = out_ids;
+
 	this->observer = observer;
 	this->dt = dt;
 	this->n_nodes = initial_conditions.size();
 
-	// MASTER stuff
-	// How many worker nodes?
-	int n_worker_nodes;
-	// ...
-	// partition the nodes
-	// ...
-	// distribute initial state
-	//   allocate and fill lengths array
-	//   send lengths
-	//   allocate databuffer
-	//   for every circ buffer
-	//     linearize()
-	//     put into right place in buffer
-	//   send databuffer
-	//
-	// ...
-	// distribute connectivity
-	//   simmilar to initial state distribution (struct are easier to pack)
-	// ...
-	// ...
 	// WORKERS' stuff
-	// ...
-	// receive the initial state
-	//   recv lengths
-	//   recv data
-	//   create buffers
-	//   fill with data
-	// ...
-	// these hold the ordering of overlapping nodes in the buffers
-	std::vector<int std::vector<int> > neighbor_in_ids; // what we get
-	std::vector<int std::vector<int> > neighbor_out_ids; // what we send
-	// TODO fill them
-	// ...
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+
 	// allocate continuous message buffers for communication with our neighbors
-	std::vector<double**> send_buffers = std::vector<double**>(neighbor_out_ids);
+	this->send_buffers = std::vector<double**>(this->neighbor_out_ids.size());
 	for(std::vector<double**>::size_type i=0; i< send_buffers.size();i++){
-		send_buffers[i] = alloc_2d_array(	neighbor_out_ids[i].size(),
+		this->send_buffers[i] = alloc_2d_array(	this->neighbor_out_ids[i].size(),
 											this->model->n_vars());
 	}
-	std::vector<double**> recv_buffers = std::vector<double**>(neighbor_in_ids);
+	this->recv_buffers = std::vector<double**>(this->neighbor_in_ids.size());
 	for(std::vector<double**>::size_type i=0; i< recv_buffers.size();i++){
-		recv_buffers[i] = alloc_2d_array(	neighbor_in_ids[i].size(),
+		this->recv_buffers[i] = alloc_2d_array(	this->neighbor_in_ids[i].size(),
 											this->model->n_vars());
 	}
 }
