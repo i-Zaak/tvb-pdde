@@ -2,6 +2,11 @@ import numpy as np
 from scipy.io import mmread
 import sys
 
+def maximum (A, B):
+    tmp = A - B
+    tmp.data = np.where(tmp.data < 0, 1, 0)
+    return A - A.multiply(tmp) + B.multiply(tmp)
+
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print "Usage: %s matrix.mtx partition.par.n" % sys.argv[0]
@@ -14,7 +19,7 @@ if __name__ == "__main__":
     print "Reading... ",
     sys.stdout.flush()
     A = mmread(mtx_file)
-    A = np.maximum(A,A.transpose())
+    A = maximum(A,A.transpose())
     A = A.tocsr()
     print "Done!"
 
@@ -35,8 +40,16 @@ if __name__ == "__main__":
                 continue
             neighs = cols[partition[cols] ==j ]
             if len(neighs) >0:
-                buf = 'remote %d\n' % (j)
+                buf = 'receive %d\n' % (j)
                 buf += '\n'.join(map(str,neighs)) + '\n'
+                out_file.write(buf)
+            nodes2 = np.where(partition==j)[0]
+            _ , cols2 = A[nodes2,:].nonzero()
+            cols2 = np.unique(cols2)
+            neighs2 = cols2[partition[cols2] ==i ]
+            if len(neighs2) >0:
+                buf = 'send %d\n' % (j)
+                buf += '\n'.join(map(str,neighs2)) + '\n'
                 out_file.write(buf)
     out_file.close()
 

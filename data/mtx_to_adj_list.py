@@ -3,6 +3,12 @@ from scipy.sparse import triu
 import numpy as np
 import sys
 
+
+def maximum (A, B):
+    tmp = A - B
+    tmp.data = np.where(tmp.data < 0, 1, 0)
+    return A - A.multiply(tmp) + B.multiply(tmp)
+
 if __name__ == "__main__":
     if len(sys.argv) != 4:
         print "Usage: %s matrix_in.mtx matrix_out.adj [float|int]" % sys.argv[0]
@@ -15,7 +21,7 @@ if __name__ == "__main__":
     print "Reading... ",
     sys.stdout.flush()
     A = mmread(sys.argv[1])    
-    A = np.maximum(A,A.transpose())
+    A = maximum(A,A.transpose())
     A = A.tocsr()
     #A = triu(A,format='csr')
     print "Done!"
