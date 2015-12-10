@@ -63,8 +63,6 @@ void connectivity_from_partition(	std::ifstream &part_file,
 	for (unsigned long i = 0; i < n_part_nodes; i++) {
 		int node;
 		part_file >> node;
-		assert(node <1000);
-		assert(node_id <1000);
 		node_map.insert(std::make_pair(node,node_id));
 		node_id++;
 	}
@@ -103,7 +101,7 @@ void connectivity_from_partition(	std::ifstream &part_file,
 	for(	std::map<int,int>::iterator node_it=node_map.begin();
 			node_it != node_map.end();
 			node_it++){
-		seek_line(conn_file,node_it->first+1);
+		seek_line(conn_file,node_it->first+2);
 		std::string line;
 		//read the incomming connections
 		local_connectivity_type lconn = local_connectivity_type();

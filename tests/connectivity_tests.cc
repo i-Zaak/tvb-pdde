@@ -28,5 +28,7 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 									recv_node_ids, 
 									send_node_ids );
 
-	int i = 1;
+	REQUIRE(connectivity.size() == 193);
+	REQUIRE(connectivity[143].size() == 17);
+	REQUIRE(connectivity[143][16].delay == Approx(6.730340));
 }
