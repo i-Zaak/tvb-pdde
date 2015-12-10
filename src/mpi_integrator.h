@@ -24,6 +24,8 @@ class mpi_integrator
 		global_history_type history; 
 		double dt;
 		unsigned long n_nodes;
+		std::vector<double**> send_buffers
+		std::vector<double**> recv_buffers
 		// the actual integration scheme, performs one step and returns the
 		// length of the step in time
 		virtual double scheme(unsigned int node, local_state_type &new_state)=0; 

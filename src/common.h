@@ -32,7 +32,7 @@ typedef std::vector< std::pair< double, std::vector<double> > > local_solution_t
 typedef std::pair< double, std::vector<double> > solution_pair_type;
 
 //maps nodes to neighboring mpi thread ids
-typedef std::vector< std::vector<int> > neighbor_map_type;
+typedef std::vector< std::pair<int,std::vector<int> > > neighbor_map_type;
 
 // mapping of node ids
 typedef std::vector<int> node_map_type;

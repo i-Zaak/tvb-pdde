@@ -31,7 +31,8 @@ if __name__ == "__main__":
         outfilename = partfile + '.%d' % (i) 
         out_file = open(outfilename,'w')
         nodes = np.where(partition==i)[0]
-        buf = "\n".join(map(str, nodes )) + '\n'
+        buf = "%d %d\n" %(i, len(nodes))
+        buf += "\n".join(map(str, nodes )) + '\n'
         out_file.write(buf)
         _ , cols = A[nodes,:].nonzero()
         cols = np.unique(cols)
@@ -40,7 +41,7 @@ if __name__ == "__main__":
                 continue
             neighs = cols[partition[cols] ==j ]
             if len(neighs) >0:
-                buf = 'receive %d\n' % (j)
+                buf = '%d %d %d\n' % (j,0,len(neighs))
                 buf += '\n'.join(map(str,neighs)) + '\n'
                 out_file.write(buf)
             nodes2 = np.where(partition==j)[0]
@@ -48,7 +49,7 @@ if __name__ == "__main__":
             cols2 = np.unique(cols2)
             neighs2 = cols2[partition[cols2] ==i ]
             if len(neighs2) >0:
-                buf = 'send %d\n' % (j)
+                buf = '%d %d %d\n' % (j,1,len(neighs2))
                 buf += '\n'.join(map(str,neighs2)) + '\n'
                 out_file.write(buf)
     out_file.close()
