@@ -28,8 +28,9 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 									recv_node_ids, 
 									send_node_ids );
 
-	REQUIRE(connectivity.size() == 193);
+	REQUIRE(connectivity.size() == 144);
 	REQUIRE(connectivity[143].size() == 17);
 	REQUIRE(connectivity[143][16].delay == Approx(6.730340));
-	REQUIRE(false); // check the "from" field !!
+	REQUIRE(connectivity[143][16].from == 124);
+	REQUIRE(connectivity[143][3].from == 152);
 }

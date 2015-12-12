@@ -74,7 +74,7 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 		if(conn_type == 0){
 			//receive
 			std::vector<int> recv_ids(n_neigh_nodes);
-			connectivity.resize(connectivity.size() + n_neigh_nodes);
+			//connectivity.resize(connectivity.size() + n_neigh_nodes);
 			for (unsigned long i = 0; i < n_neigh_nodes; i++) {
 				int node; 
 				part_file >> node;
@@ -101,27 +101,28 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 	for(	std::map<int,int>::iterator node_it=node_map.begin();
 			node_it != node_map.end();
 			node_it++){
-		seek_line(conn_file,node_it->first+2);
-		std::string line;
-		//read the incomming connections
-		local_connectivity_type lconn = local_connectivity_type();
-		//conn_file.getline(curstr,std::numeric_limits<std::streamsize>::max());
-		std::getline(conn_file, line);
-		std::istringstream line_str(line);   
-		while (!line_str.eof()) {
-			unsigned long from;
-			double delay;
-			line_str >> from >> delay;
-			from = node_map[from]; // map to local id
-			connection conn = {
-				from,		// from
-				delay,	//delay
-				1.0		// weigth
-			};
-			lconn.push_back(conn);
+		if(node_it->second < n_part_nodes){ // we want to connect only local nodes
+			seek_line(conn_file,node_it->first+2);
+			std::string line;
+			//read the incomming connections
+			local_connectivity_type lconn = local_connectivity_type();
+			std::getline(conn_file, line);
+			std::istringstream line_str(line);   
+			while (!line_str.eof()) {
+				unsigned long from;
+				double delay;
+				line_str >> from >> delay;
+				from = node_map[from-1]; // map to local id
+				connection conn = {
+					from,		// from
+					delay,	//delay
+					1.0		// weigth
+				};
+				lconn.push_back(conn);
 
+			}
+			connectivity[node_it->second] = lconn;
 		}
-		connectivity[node_it->second] = lconn;
 	}
 	return n_part_nodes;
 }
