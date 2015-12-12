@@ -112,6 +112,7 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 			unsigned long from;
 			double delay;
 			line_str >> from >> delay;
+			from = node_map[from]; // map to local id
 			connection conn = {
 				from,		// from
 				delay,	//delay
