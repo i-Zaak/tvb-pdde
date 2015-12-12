@@ -13,7 +13,7 @@ struct connection
 	double weight;
 };
 global_connectivity_type connectivity_from_mtx(std::string filename);
-void connectivity_from_partition(	std::ifstream& part_file, 
+unsigned long connectivity_from_partition(	std::ifstream& part_file, 
 									std::ifstream& conn_file,
 									global_connectivity_type &connectivity,
 									neighbor_map_type &recv_node_ids, 

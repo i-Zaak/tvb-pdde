@@ -3,42 +3,49 @@
 
 mpi_integrator::mpi_integrator(	population_model *model,
 								population_coupling *coupling,
-								global_connectivity_type worker_connectivity,
-								global_history_type initial_conditions,
-								node_map_type node_map,
-								neighbor_map_type in_ids,
-								neighbor_map_type out_ids,
+								const global_connectivity_type &connectivity,
+								const global_history_type &initial_conditions,
 								solution_observer *observer,
-								double dt)
+								double dt,
+								const neighbor_map_type &recv_node_ids, 
+								const neighbor_map_type &send_node_ids):
+				integrator( model, coupling, connectivity, initial_conditions, 
+							observer, dt)
 {
-	this->model = model;
-	this->coupling = coupling;
-	this->history = initial_conditions;
+	//this->model = model;
+	//this->coupling = coupling;
+	// the initial conditions contain also data for shadow nodes. Consistency 
+	// taken care of outside (easy for constant IC, will require data transfers
+	// for any other.
+	//this->history = initial_conditions;
 	// worker relative numbering
-	this->worker_connectivity = worker_connectivity;
+	//this->worker_connectivity = worker_connectivity;
 	// these hold the ids and oredring of overlapping nodes in the buffers
-	this->neigbor_in_ids = in_ids;
-	this->neigbor_out_ids = out_ids;
+	this->recv_ids = recv_node_ids;
+	this->send_ids = send_node_ids;
 
-	this->observer = observer;
-	this->dt = dt;
-	this->n_nodes = initial_conditions.size();
+	// #local nodes = #all nodes - #shadow nodes
+	this->n_nodes = this->history.size();
+	for (unsigned long i = 0; i < this->recv_ids.size(); i++) {
+		this->n_nodes = this->n_nodes - this->recv_ids[i].second.size();
+	}
 
-	// WORKERS' stuff
-	int rank;
-	MPI_Comm_rank(MPI_COMM_WORLD,&rank);
+	//this->observer = observer;
+	//this->dt = dt;
 
 	// allocate continuous message buffers for communication with our neighbors
-	this->send_buffers = std::vector<double**>(this->neighbor_out_ids.size());
+	this->send_buffers = std::vector<double**>(this->send_ids.size());
 	for(std::vector<double**>::size_type i=0; i< send_buffers.size();i++){
-		this->send_buffers[i] = alloc_2d_array(	this->neighbor_out_ids[i].size(),
+		this->send_buffers[i] = alloc_2d_array(	this->send_ids[i].second.size(),
 											this->model->n_vars());
 	}
-	this->recv_buffers = std::vector<double**>(this->neighbor_in_ids.size());
+	this->recv_buffers = std::vector<double**>(this->recv_ids.size());
 	for(std::vector<double**>::size_type i=0; i< recv_buffers.size();i++){
-		this->recv_buffers[i] = alloc_2d_array(	this->neighbor_in_ids[i].size(),
+		this->recv_buffers[i] = alloc_2d_array(	this->recv_ids[i].second.size(),
 											this->model->n_vars());
 	}
+	
+
 }
 
 void mpi_integrator::operator()(unsigned int n_steps)
@@ -59,23 +66,61 @@ void mpi_integrator::operator()(unsigned int n_steps)
 			(*this->observer)(node, local_state, time);
 		}
 
-		// for every neighbor:
-		// build the message matrix
-		for (std::vector<int>::size_type n = 0; n < neighbor_ids.size(); n++) {
-			for (local_state::size_type v = 0; v < this->model->n_vars(); v++) {
-				local_state_buffer[n][v] = global_state[node][v];
-			}
+		// receive from neighbors
+		std::vector<MPI_Request> recv_reqs;
+		recv_reqs.reserve( recv_ids.size());
+		for (unsigned long n_id=0; n_id < recv_ids.size(); n_id++) {
+			int n_recv_nodes = recv_ids[n_id].second.size(); 
+			int buf_length = n_recv_nodes * this->model->n_vars(); //this could be precomputed...
+			MPI_Request req;
+			MPI_Irecv( this->recv_buffers[n_id][0], buf_length, MPI_DOUBLE, this->recv_ids[n_id].first, i, MPI_COMM_WORLD, &req);
+			recv_reqs.push_back(req);
 		}
-		// send to neighbor
+
+		// send to neighbors
+		std::vector<MPI_Request> send_reqs;
+		send_reqs.reserve( send_ids.size());
+		for (unsigned long n_id=0; n_id < this->send_ids.size(); n_id++) {
+			unsigned long n_send_nodes = this->send_ids[n_id].second.size();
+			for(unsigned long j=0; j < n_send_nodes; j++){
+				for (unsigned int dim = 0; dim < this->model->n_vars(); dim++) {
+					this->send_buffers[n_id][j][dim] = global_state[ send_ids[n_id].first ][dim];
+				}
+			}
+			int buf_length = n_send_nodes * this->model->n_vars();
+			MPI_Request req;
+			MPI_Isend(	this->send_buffers[n_id][0], buf_length,MPI_DOUBLE, this->send_ids[n_id].first, i, MPI_COMM_WORLD, &req );
+			send_reqs.push_back(req);
+		}
+
+		// wait for receives
+		std::vector<MPI_Status>recv_stats(recv_reqs.size());
+		MPI_Waitall(recv_reqs.size(), &recv_reqs[0], &recv_stats[0]);
+
+		// copy from receive buffer
+		for (unsigned long n_id=0; n_id < this->recv_ids.size(); n_id++) {
+			unsigned long n_recv_nodes = this->recv_ids[n_id].second.size();
+			for(unsigned long j=0; j < n_recv_nodes; j++){
+				for (unsigned int dim = 0; dim < this->model->n_vars(); dim++) {
+					global_state[ recv_ids[n_id].first ][dim] = this->recv_buffers[n_id][j][dim];
+				}
+			}
+
+		}
+		
 
 		// update history
 		for(unsigned long node=0; node< this->n_nodes; node++){
 			// this can be run only after all nodes are done
 			this->history[node]->add_state(global_state[node]);
 		}
+		
+		//wait for sends before next iteration
+		std::vector<MPI_Status>send_stats(send_reqs.size());
+		MPI_Waitall(send_reqs.size(), &send_reqs[0], &send_stats[0]);
 	}
 
-	// gather results back to master (function of observer)
+	// TODO gather results back to master (function of observer)
 }
 
 	
@@ -113,36 +158,6 @@ double mpi_euler_deterministic::scheme(unsigned int node, local_state_type &new_
 }
 
 
-global_history_type mpi_integrator::constant_initial_conditions(
-		const global_connectivity_type &connectivity,
-		const local_state_type &values,
-		history_factory* history,
-		population_model* model,
-		double dt)
-{
 
-	global_history_type initial_conditions = global_history_type(connectivity.size());
-	
-	// determine buffer lengths
-	std::vector<double> max_delays = std::vector<double>(connectivity.size(),0.0);
-	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		for(local_connectivity_type::size_type j=0; j< connectivity[i].size(); j++)	{
-			connection conn = connectivity[i][j];
-			if ( max_delays[conn.from] < conn.delay) {
-				max_delays[conn.from] = conn.delay;
-			}
-		}
-	}
-
-	// create buffers and fill with constant state
-	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		int length = ceil(max_delays[i] / dt)+1;
-		initial_conditions[i] = history->create_history(length, dt, model->n_vars());
-		for(int j = 0; j < length; j++) {
-			initial_conditions[i]->add_state(values);
-		}
-	}
-
-	return initial_conditions;
-}
-
+// More sophisticated (i.e. requiring communication) initial conditions to 
+// come: e.g. for random IC broadcast only the seed, not the states.

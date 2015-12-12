@@ -47,4 +47,10 @@ inline double **alloc_2d_array(int n, int m) {
     return array;
 };
 
+// allocator for 1D array
+inline double *alloc_1d_array(int n) {
+    double *array = (double *)malloc(n*sizeof(double));
+    return array;
+};
+
 #endif

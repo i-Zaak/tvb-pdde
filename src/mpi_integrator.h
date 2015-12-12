@@ -1,5 +1,5 @@
-#ifndef INTEGRATOR_H
-#define INTEGRATOR_H	
+#ifndef MPI_INTEGRATOR_H
+#define MPI_INTEGRATOR_H	
 
 #include "common.h"
 #include "model.h"
@@ -7,6 +7,8 @@
 #include "coupling.h"
 #include "observer.h"
 #include "mpi.h"
+#include "integrator.h"
+#include <vector>
 
 /**
  * Same as the `integrator` class, but distributed using MPI. To be possibly
@@ -14,7 +16,7 @@
  *
  * Assumes, that MPI_Init was called outside.
  */
-class mpi_integrator 
+class mpi_integrator: public integrator
 {
 	protected:
 		population_model *model; //could be private
@@ -24,8 +26,10 @@ class mpi_integrator
 		global_history_type history; 
 		double dt;
 		unsigned long n_nodes;
-		std::vector<double**> send_buffers
-		std::vector<double**> recv_buffers
+		std::vector<double**> send_buffers;
+		std::vector<double**> recv_buffers;
+		neighbor_map_type recv_ids; 
+		neighbor_map_type send_ids;
 		// the actual integration scheme, performs one step and returns the
 		// length of the step in time
 		virtual double scheme(unsigned int node, local_state_type &new_state)=0; 
@@ -34,25 +38,20 @@ class mpi_integrator
 						const local_state_type phi, 
 						double time_offset, 
 						local_state_type &dphidt);
-		void distribute_initial_state;
-
 	public:
 		mpi_integrator(	population_model *model,
 					population_coupling *coupling,
 					const global_connectivity_type &connectivity,
 					const global_history_type &initial_conditions,
 					solution_observer *observer,
-					double dt);
-		static global_history_type constant_initial_conditions(
-				const global_connectivity_type &connectivity,
-				const local_state_type &values,
-				history_factory* history,
-				population_model* model,
-				double dt);
+					double dt,
+					const neighbor_map_type &recv_node_ids, 
+					const neighbor_map_type &send_node_ids);
 
 		void operator()(unsigned int n_steps);
 };
 
+// this duplicates euler_deterministic. Refactor with multiple inheritance?
 class mpi_euler_deterministic : public mpi_integrator
 {
 	private:
@@ -63,10 +62,14 @@ class mpi_euler_deterministic : public mpi_integrator
 								const global_connectivity_type &connectivity,
 								const global_history_type &initial_conditions,
 								solution_observer *observer,
-								double dt
+								double dt,
+					const neighbor_map_type &recv_node_ids, 
+					const neighbor_map_type &send_node_ids
 							):mpi_integrator( 	model, coupling, connectivity, 
 											initial_conditions, observer,
-											dt
+											dt,
+					recv_node_ids, 
+					send_node_ids
 							){};
 };
 #endif

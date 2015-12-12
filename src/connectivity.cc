@@ -45,11 +45,11 @@ std::ifstream& seek_line(std::ifstream& file, unsigned int line_num){
     return file;
 }
 
-void connectivity_from_partition(	std::ifstream &part_file,
-									std::ifstream &conn_file,
-									global_connectivity_type &connectivity,
-									neighbor_map_type &recv_node_ids, 
-									neighbor_map_type &send_node_ids )
+unsigned long connectivity_from_partition(	std::ifstream &part_file,
+											std::ifstream &conn_file,
+											global_connectivity_type &connectivity,
+											neighbor_map_type &recv_node_ids, 
+											neighbor_map_type &send_node_ids )
 {
 	unsigned long part_id, n_part_nodes;
 	part_file >> part_id >> n_part_nodes;
@@ -122,4 +122,5 @@ void connectivity_from_partition(	std::ifstream &part_file,
 		}
 		connectivity[node_it->second] = lconn;
 	}
+	return n_part_nodes;
 }

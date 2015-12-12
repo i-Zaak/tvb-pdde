@@ -1,4 +1,4 @@
-all:bin/tests bin/mpi_tests bin/seq_bench
+all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
 CC = mpic++
 CFLAGS = -Wall -g #-fopenmp
@@ -27,11 +27,15 @@ SOURCES = src/coupling.cc \
 		  src/model.cc \
 		  src/integrator.cc \
 		  src/observer.cc \
-		  src/connectivity.cc 
+		  src/connectivity.cc \
+		  src/mpi_integrator.cc
 OBJS = $(SOURCES:.cc=.o)
 
-TOOL_SOURCES = src/seq_bench.cc
+TOOL_SOURCES = src/seq_bench.cc 
 TOOL_OBJS = $(TOOL_SOURCES:.cc=.o)
+
+MPI_TOOL_SOURCES = src/mpi_bench.cc 
+MPI_TOOL_OBJS = $(MPI_TOOL_SOURCES:.cc=.o)
 
 
 SRC= $(SOURCES) $(TEST_SOURCES) $(TOOL_SOURCES)
@@ -40,6 +44,9 @@ DEPFILES:=$(patsubst %.cc,%.d,$(SRC))
 	$(CC) $(CFLAGS) $(INCLUDES) -MM -MT '$(patsubst %.cc,%.o,$<)' $< -MF $@
 
 -include $(DEPFILES)
+
+bin/mpi_bench: $(MPI_TOOL_OBJS) $(OBJS) bin
+	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_bench $(MPI_TOOL_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
 bin/seq_bench: $(TOOL_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/seq_bench $(TOOL_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
@@ -63,7 +70,7 @@ test:bin/tests bin/mpi_tests
 	@echo "Sequential tests"
 	./bin/tests
 	@echo "MPI tests"
-	./bin/mpi_tests
+	mpirun -n 2 ./bin/mpi_tests
 
 test-gdb:bin/tests
 	gdb ./bin/tests
