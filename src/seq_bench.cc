@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 	local_state_type values = local_state_type(model->n_vars(),1.5);
 	global_history_type initial_conditions = integrator::constant_initial_conditions(
-			connectivity, values, history, model, dt ); 
+			connectivity, connectivity.size(),values, history, model, dt ); 
 	linear_coupling *coupling = new linear_coupling();
 	raw_observer *observer = new raw_observer(connectivity.size());
 	euler_deterministic integrator = euler_deterministic(

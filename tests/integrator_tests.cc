@@ -26,7 +26,7 @@ TEST_CASE("Integration time stepping", "[euler method]")
 	lint_history_factory* history = new lint_history_factory();
 	local_state_type values = local_state_type(model->n_vars(),1.6);
 	global_history_type initial_conditions = integrator::constant_initial_conditions(
-			connectivity, values, history, model, dt ); 
+			connectivity, connectivity.size(), values, history, model, dt ); 
 	SECTION("generating initial conditions"){
 		for(unsigned long i = 0; i< n_nodes; i++){
 			if(i == 2){
@@ -73,7 +73,7 @@ TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	local_state_type values = local_state_type(model->n_vars(),42.0);
 	double dt=0.2;
 	global_history_type initial_conditions = integrator::constant_initial_conditions(
-			connectivity, values, history, model, dt ); 
+			connectivity, connectivity.size(),values, history, model, dt ); 
 	static const int arr[] = {3, 4, 5, 2, 6, 3, 6, 6, 4, 5, 6, 6, 6, 6, 4, 5, 4, 5, 4, 4}; 
 	std::vector<int> expected_buflengths(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 

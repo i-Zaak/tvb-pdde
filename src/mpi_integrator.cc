@@ -12,14 +12,6 @@ mpi_integrator::mpi_integrator(	population_model *model,
 				integrator( model, coupling, connectivity, initial_conditions, 
 							observer, dt)
 {
-	//this->model = model;
-	//this->coupling = coupling;
-	// the initial conditions contain also data for shadow nodes. Consistency 
-	// taken care of outside (easy for constant IC, will require data transfers
-	// for any other.
-	//this->history = initial_conditions;
-	// worker relative numbering
-	//this->worker_connectivity = worker_connectivity;
 	// these hold the ids and oredring of overlapping nodes in the buffers
 	this->recv_ids = recv_node_ids;
 	this->send_ids = send_node_ids;
@@ -29,9 +21,6 @@ mpi_integrator::mpi_integrator(	population_model *model,
 	for (unsigned long i = 0; i < this->recv_ids.size(); i++) {
 		this->n_nodes = this->n_nodes - this->recv_ids[i].second.size();
 	}
-
-	//this->observer = observer;
-	//this->dt = dt;
 
 	// allocate continuous message buffers for communication with our neighbors
 	this->send_buffers = std::vector<double**>(this->send_ids.size());
@@ -44,8 +33,17 @@ mpi_integrator::mpi_integrator(	population_model *model,
 		this->recv_buffers[i] = alloc_2d_array(	this->recv_ids[i].second.size(),
 											this->model->n_vars());
 	}
-	
+}
 
+mpi_integrator::~mpi_integrator()
+{
+	for(std::vector<double**>::size_type i=0; i< send_buffers.size();i++){
+		free(this->send_buffers[i]);
+	}
+
+	for(std::vector<double**>::size_type i=0; i< recv_buffers.size();i++){
+		free(this->recv_buffers[i]);
+	}
 }
 
 void mpi_integrator::operator()(unsigned int n_steps)

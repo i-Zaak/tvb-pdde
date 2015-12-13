@@ -19,13 +19,6 @@
 class mpi_integrator: public integrator
 {
 	protected:
-		population_model *model; //could be private
-		population_coupling *coupling; //could be private
-		solution_observer *observer; //could be private
-		global_connectivity_type connectivity; //could be private
-		global_history_type history; 
-		double dt;
-		unsigned long n_nodes;
 		std::vector<double**> send_buffers;
 		std::vector<double**> recv_buffers;
 		neighbor_map_type recv_ids; 
@@ -48,6 +41,7 @@ class mpi_integrator: public integrator
 					const neighbor_map_type &recv_node_ids, 
 					const neighbor_map_type &send_node_ids);
 
+		~mpi_integrator();
 		void operator()(unsigned int n_steps);
 };
 

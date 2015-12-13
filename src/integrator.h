@@ -43,6 +43,7 @@ class integrator
 					double dt);
 		static global_history_type constant_initial_conditions(
 				const global_connectivity_type &connectivity,
+				unsigned long n_nodes, // at least connectivity.size()
 				const local_state_type &values,
 				history_factory* history,
 				population_model* model,

@@ -51,7 +51,7 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 											neighbor_map_type &recv_node_ids, 
 											neighbor_map_type &send_node_ids )
 {
-	unsigned long part_id, n_part_nodes;
+	unsigned long part_id, n_part_nodes, n_buffered_nodes;
 	part_file >> part_id >> n_part_nodes;
 	connectivity.resize(n_part_nodes);
 
@@ -67,7 +67,8 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 		node_id++;
 	}
 
-	// remote nodes 
+	// remote nodes
+	n_buffered_nodes = n_part_nodes;
 	while(!part_file.eof()){
 		unsigned long neigh_id, conn_type, n_neigh_nodes;
 		part_file >> neigh_id >> conn_type >> n_neigh_nodes;
@@ -83,6 +84,7 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 				node_id++;
 			}
 			recv_node_ids.push_back(std::make_pair(neigh_id,recv_ids));
+			n_buffered_nodes += recv_ids.size();
 		}else{
 			//send
 			std::vector<int> send_ids(n_neigh_nodes);
@@ -124,5 +126,5 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 			connectivity[node_it->second] = lconn;
 		}
 	}
-	return n_part_nodes;
+	return n_buffered_nodes;
 }

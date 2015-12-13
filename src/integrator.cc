@@ -84,17 +84,18 @@ double euler_deterministic::scheme(unsigned int node, local_state_type &new_stat
 
 global_history_type integrator::constant_initial_conditions(
 		const global_connectivity_type &connectivity,
+		unsigned long n_nodes,
 		const local_state_type &values,
 		history_factory* history,
 		population_model* model,
 		double dt)
 {
 
-	global_history_type initial_conditions = global_history_type(connectivity.size());
+	global_history_type initial_conditions = global_history_type(n_nodes);
 	
 	// determine buffer lengths
-	std::vector<double> max_delays = std::vector<double>(connectivity.size(),0.0);
-	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
+	std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
+	for(global_connectivity_type::size_type i=0; i < connectivity.size(); i++){
 		for(local_connectivity_type::size_type j=0; j< connectivity[i].size(); j++)	{
 			connection conn = connectivity[i][j];
 			if ( max_delays[conn.from] < conn.delay) {

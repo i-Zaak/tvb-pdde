@@ -58,7 +58,8 @@ int main(int argc, char* argv[])
 	local_state_type values = local_state_type(model->n_vars(),1.5);
 	// this may do some communication inside, here we don't care...
 	global_history_type initial_conditions = mpi_integrator::constant_initial_conditions(
-			connectivity, values, history, model, dt ); 
+			connectivity, n_local_nodes,
+			values, history, model, dt ); 
 
 	
 	// create the integrator for this process
