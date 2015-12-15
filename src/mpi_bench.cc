@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
 	integrator(n_steps);
 	//TODO save results
 	
-	MPI_Finalize();
-	return 0;
+	int status = MPI_Finalize();
+
+	return status;
 }

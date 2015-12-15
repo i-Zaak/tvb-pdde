@@ -65,19 +65,17 @@ void mpi_integrator::operator()(unsigned int n_steps)
 		}
 
 		// receive from neighbors
-		std::vector<MPI_Request> recv_reqs;
-		recv_reqs.reserve( recv_ids.size());
+		std::vector<MPI_Request> reqs;
+		reqs.reserve( send_ids.size() + recv_ids.size());
 		for (unsigned long n_id=0; n_id < recv_ids.size(); n_id++) {
 			int n_recv_nodes = recv_ids[n_id].second.size(); 
 			int buf_length = n_recv_nodes * this->model->n_vars(); //this could be precomputed...
 			MPI_Request req;
 			MPI_Irecv( this->recv_buffers[n_id][0], buf_length, MPI_DOUBLE, this->recv_ids[n_id].first, i, MPI_COMM_WORLD, &req);
-			recv_reqs.push_back(req);
+			reqs.push_back(req);
 		}
 
 		// send to neighbors
-		std::vector<MPI_Request> send_reqs;
-		send_reqs.reserve( send_ids.size());
 		for (unsigned long n_id=0; n_id < this->send_ids.size(); n_id++) {
 			unsigned long n_send_nodes = this->send_ids[n_id].second.size();
 			for(unsigned long j=0; j < n_send_nodes; j++){
@@ -88,12 +86,12 @@ void mpi_integrator::operator()(unsigned int n_steps)
 			int buf_length = n_send_nodes * this->model->n_vars();
 			MPI_Request req;
 			MPI_Isend(	this->send_buffers[n_id][0], buf_length,MPI_DOUBLE, this->send_ids[n_id].first, i, MPI_COMM_WORLD, &req );
-			send_reqs.push_back(req);
+			reqs.push_back(req);
 		}
 
-		// wait for receives
-		std::vector<MPI_Status>recv_stats(recv_reqs.size());
-		MPI_Waitall(recv_reqs.size(), &recv_reqs[0], &recv_stats[0]);
+		//wait for sends and receives
+		std::vector<MPI_Status>stats(reqs.size());
+		MPI_Waitall(reqs.size(), &reqs[0], &stats[0]);
 
 		// copy from receive buffer
 		for (unsigned long n_id=0; n_id < this->recv_ids.size(); n_id++) {
@@ -113,9 +111,6 @@ void mpi_integrator::operator()(unsigned int n_steps)
 			this->history[node]->add_state(global_state[node]);
 		}
 		
-		//wait for sends before next iteration
-		std::vector<MPI_Status>send_stats(send_reqs.size());
-		MPI_Waitall(send_reqs.size(), &send_reqs[0], &send_stats[0]);
 	}
 
 	// TODO gather results back to master (function of observer)
