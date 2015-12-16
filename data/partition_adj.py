@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     mtx_file = sys.argv[1]
     partfile = sys.argv[2]
-    n_procs = int(sys.argv[2][-1])
+    n_procs = int(sys.argv[2].split('.')[-1])
 
     print "Reading... ",
     sys.stdout.flush()
