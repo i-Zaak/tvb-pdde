@@ -1,5 +1,6 @@
 all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
+#CC = scalasca -instrument mpic++
 CC = mpic++
 CFLAGS = -Wall -g #-fopenmp
 INCLUDES = -Isrc
