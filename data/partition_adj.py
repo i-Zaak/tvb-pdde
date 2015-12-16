@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.io import mmread
 import sys
+import os.path
 
 def maximum (A, B):
     tmp = A - B
@@ -15,18 +16,24 @@ if __name__ == "__main__":
     mtx_file = sys.argv[1]
     partfile = sys.argv[2]
     n_procs = int(sys.argv[2].split('.')[-1])
+    if not os.path.isfile(mtx_file):
+        print "error: %s file doesn't exist" % mtx_file
+        sys.exit(2)
+    if not os.path.isfile(partfile):
+        print "error: %s file doesn't exist" % partfile
+        sys.exit(3)
 
     print "Reading... ",
     sys.stdout.flush()
+    partition = np.loadtxt(partfile, dtype=int)
     A = mmread(mtx_file)
-    A = maximum(A,A.transpose())
+    #A = maximum(A,A.transpose())
     A = A.tocsr()
     print "Done!"
 
     n_nodes = A.shape[0]
     n_block = n_nodes/n_procs
     
-    partition = np.loadtxt(partfile, dtype=int)
     for i in range(n_procs):
         outfilename = partfile + '.%d' % (i) 
         out_file = open(outfilename,'w')
