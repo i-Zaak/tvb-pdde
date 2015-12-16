@@ -100,15 +100,15 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 	// connect them 
 	unsigned long n_nodes, n_conns, type;
 	conn_file >> n_nodes >> n_conns >> type;
-	for(	std::map<int,int>::iterator node_it=node_map.begin();
-			node_it != node_map.end();
-			node_it++){
-		if(node_it->second < n_part_nodes){ // we want to connect only local nodes
-			seek_line(conn_file,node_it->first+2);
-			std::string line;
-			//read the incomming connections
+	
+	int n_line = 0;
+	std::string line;
+	std::getline(conn_file, line); //just mill the endline really...
+	for (line; std::getline(conn_file, line); ) {
+		std::map<int,int>::iterator node_it = node_map.find(n_line);
+		n_line++;
+		if( node_it != node_map.end() && node_it->second < n_part_nodes){
 			local_connectivity_type lconn = local_connectivity_type();
-			std::getline(conn_file, line);
 			std::istringstream line_str(line);   
 			while (!line_str.eof()) {
 				unsigned long from;
