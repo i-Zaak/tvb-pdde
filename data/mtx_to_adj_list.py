@@ -21,16 +21,20 @@ if __name__ == "__main__":
     print "Reading... ",
     sys.stdout.flush()
     A = mmread(sys.argv[1])    
-    A = maximum(A,A.transpose())
+    if metis_format:
+        A = maximum(A,A.transpose())
     A = A.tocsr()
-    #A = triu(A,format='csr')
     print "Done!"
 
     out_f = open(sys.argv[2],'w')
 
     print "Writing... ",
     sys.stdout.flush()
-    header = "%d %d 001\n" %(A.shape[0], A.nnz/2)
+    if metis_format:
+        nnz = A.nnz/2
+    else:
+        nnz = A.nnz # we interpret the matrix as symmetric.
+    header = "%d %d 001\n" %(A.shape[0], nnz)
     out_f.write(header)
     for i in xrange(A.shape[0]):
         if A.indptr[i]< A.indptr[i+1]:
@@ -41,8 +45,8 @@ if __name__ == "__main__":
                     line+= " %d %d" %(A.indices[j]+1,int(1/(A.data[j])*1000)) 
                 else:
                     line+= " %d %f" %(A.indices[j]+1,A.data[j])
-            line += "\n"
-            out_f.write(line)
+        line += "\n"
+        out_f.write(line)
     print "Done!"
 
 
