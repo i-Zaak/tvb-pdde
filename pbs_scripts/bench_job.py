@@ -7,7 +7,7 @@ import sys
 template = """#!/bin/bash
 #PBS -l walltime=1h
 #PBS -l nodes=1:ppn={{n_proc}}
-#PBS -l mem=2gb
+#PBS -l mem={{mem}}gb
 #PBS -j oe
 #PBS -m e
 
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     print filename
 
     tmpl = jinja2.Template(template)
-    file_content = tmpl.render( n_proc = n_proc, conn=conn, n_iters=n_iters)
+    file_content = tmpl.render( n_proc = n_proc, conn=conn, n_iters=n_iters, mem=24)
 
     out_f = open(filename, 'w')
     out_f.write(file_content)

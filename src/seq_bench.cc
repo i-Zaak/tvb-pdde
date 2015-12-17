@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	}
 	std::string filename = argv[1];
 	double dt = atof(argv[2]);
-	int n_steps = atoi(argv[3]);
+	unsigned long n_steps = atoi(argv[3]);
 
 	global_connectivity_type connectivity = connectivity_from_mtx(filename);
 	lint_history_factory* history = new lint_history_factory();

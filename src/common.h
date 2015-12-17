@@ -32,23 +32,23 @@ typedef std::vector< std::pair< double, std::vector<double> > > local_solution_t
 typedef std::pair< double, std::vector<double> > solution_pair_type;
 
 //maps nodes to neighboring mpi thread ids
-typedef std::vector< std::pair<int,std::vector<int> > > neighbor_map_type;
+typedef std::vector< std::pair<unsigned long,std::vector<unsigned long> > > neighbor_map_type;
 
 // mapping of node ids
-typedef std::vector<int> node_map_type;
+typedef std::vector<unsigned long> node_map_type;
 
 // allocator for continuous 2D array needed for MPI code
-inline double **alloc_2d_array(int n, int m) {
+inline double **alloc_2d_array(unsigned long n, unsigned long m) {
     double *data = (double *)malloc(n*m*sizeof(double));
     double **array = (double **)malloc(n*sizeof(double*));
-    for(int i=0; i<n; i++){
+    for(unsigned long i=0; i<n; i++){
 		array[i] = &(data[m*i]);
 	}
     return array;
 };
 
 // allocator for 1D array
-inline double *alloc_1d_array(int n) {
+inline double *alloc_1d_array(unsigned long n) {
     double *array = (double *)malloc(n*sizeof(double));
     return array;
 };

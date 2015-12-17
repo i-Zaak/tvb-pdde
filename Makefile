@@ -2,6 +2,7 @@ all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
 #CC = scalasca -instrument mpic++
 CC = mpic++
+#CC = g++
 CFLAGS = -Wall -g #-fopenmp
 INCLUDES = -Isrc
 LFLAGS =

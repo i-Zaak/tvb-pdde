@@ -12,7 +12,7 @@ void linear_coupling::operator()(	const local_connectivity_type &connectivity,
 {
 	for(	local_connectivity_type::const_iterator connection = connectivity.begin();
 			connection != connectivity.end(); connection++){
-		int from = connection->from;
+		unsigned long from = connection->from;
 		double delay = connection->delay - time_offset;
 
 		local_state_type remote_state = global_history[from]->get_values(delay);
