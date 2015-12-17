@@ -69,9 +69,9 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 
 	// remote nodes
 	n_buffered_nodes = n_part_nodes;
-	while(!part_file.eof()){
-		unsigned long neigh_id, conn_type, n_neigh_nodes;
-		part_file >> neigh_id >> conn_type >> n_neigh_nodes;
+	unsigned long neigh_id, conn_type, n_neigh_nodes;
+	//while(!part_file.eof()){
+	while( part_file >> neigh_id >> conn_type >> n_neigh_nodes){
 		if(conn_type == 0){
 			//receive
 			std::vector<unsigned long> recv_ids(n_neigh_nodes);
