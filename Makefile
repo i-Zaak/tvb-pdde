@@ -1,9 +1,30 @@
 all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
-#CC = scalasca -instrument mpic++
-CC = mpic++
-#CC = g++
-CFLAGS = -Wall -g #-fopenmp
+# use following variables to control the build:
+# OPENMP=[1|0]		adds OpenMP compiler flags, default 0 
+# INSTRUMENT=[1|0]	uses scalasca to instrument MPI parts, default 0
+# DEBUG=[1|0]		turns of -O optimization and adds -g flag, default 0
+
+ifeq (INSTRUMENT,1)
+	MPI_CC = scalasca -instrument mpic++
+else
+	MPI_CC = mpic++
+endif
+CC = g++
+bin/mpi_bench:CC = $(MPI_CC)
+bin/mpi_tests:CC = $(MPI_CC)
+CFLAGS = -Wall 
+
+ifeq ($(DEBUG),1)
+	CFLAGS += -g -O0
+else
+	CFLAGS += -O3
+endif
+
+ifeq ($(OPENMP),1)
+	CFLAGS += -fopenmp
+endif
+
 INCLUDES = -Isrc
 LFLAGS =
 LIBS =
@@ -29,9 +50,11 @@ SOURCES = src/coupling.cc \
 		  src/model.cc \
 		  src/integrator.cc \
 		  src/observer.cc \
-		  src/connectivity.cc \
-		  src/mpi_integrator.cc
+		  src/connectivity.cc 
 OBJS = $(SOURCES:.cc=.o)
+
+MPI_SOURCES = src/mpi_integrator.cc
+MPI_OBJS = $(MPI_SOURCES:.cc=.o)
 
 TOOL_SOURCES = src/seq_bench.cc 
 TOOL_OBJS = $(TOOL_SOURCES:.cc=.o)
@@ -40,15 +63,15 @@ MPI_TOOL_SOURCES = src/mpi_bench.cc
 MPI_TOOL_OBJS = $(MPI_TOOL_SOURCES:.cc=.o)
 
 
-SRC= $(SOURCES) $(TEST_SOURCES) $(TOOL_SOURCES)
+SRC= $(SOURCES) $(MPI_SOURCES) $(MPI_TEST_SOURCES) $(TEST_SOURCES) $(TOOL_SOURCES) $(TOOL_SOURCES)
 DEPFILES:=$(patsubst %.cc,%.d,$(SRC))
 %.d: %.cc
 	$(CC) $(CFLAGS) $(INCLUDES) -MM -MT '$(patsubst %.cc,%.o,$<)' $< -MF $@
 
 -include $(DEPFILES)
 
-bin/mpi_bench: $(MPI_TOOL_OBJS) $(OBJS) bin
-	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_bench $(MPI_TOOL_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
+bin/mpi_bench: $(MPI_TOOL_OBJS) $(OBJS) $(MPI_OBJS) bin
+	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_bench $(MPI_TOOL_OBJS) $(MPI_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
 bin/seq_bench: $(TOOL_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/seq_bench $(TOOL_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
@@ -56,8 +79,8 @@ bin/seq_bench: $(TOOL_OBJS) $(OBJS) bin
 bin/tests: $(TEST_OBJS) $(OBJS) bin
 	$(CC) $(CFLAGS) $(INCLUDES) -o bin/tests $(TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
-bin/mpi_tests: $(MPI_TEST_OBJS) $(OBJS) bin
-	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_tests $(MPI_TEST_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
+bin/mpi_tests: $(MPI_TEST_OBJS) $(OBJS) $(MPI_OBJS) bin
+	$(CC) $(CFLAGS) $(INCLUDES) -o bin/mpi_tests $(MPI_TEST_OBJS) $(MPI_OBJS) $(OBJS) $(LFLAGS) $(LIBS)
 
 .cc.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
