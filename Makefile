@@ -4,6 +4,7 @@ all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 # OPENMP=[1|0]		adds OpenMP compiler flags, default 0 
 # INSTRUMENT=[1|0]	uses scalasca to instrument MPI parts, default 0
 # DEBUG=[1|0]		turns of -O optimization and adds -g flag, default 0
+# PROFILE=[1|0]		turns of -O optimization and adds -g and -pg flag, default 0
 
 ifeq (INSTRUMENT,1)
 	MPI_CC = scalasca -instrument mpic++
@@ -17,8 +18,14 @@ CFLAGS = -Wall
 
 ifeq ($(DEBUG),1)
 	CFLAGS += -g -O0
+else ifeq ($(PROFILE),1)
+	CFLAGS += -g -O0
 else
 	CFLAGS += -O3
+endif
+
+ifeq ($(PROFILE),1)
+	CFLAGS += -pg 
 endif
 
 ifeq ($(OPENMP),1)
