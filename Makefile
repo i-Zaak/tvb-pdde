@@ -15,6 +15,7 @@ TEST_SOURCES = tests/main.cc \
 			   tests/integrator_tests.cc \
 			   tests/observer_tests.cc \
 			   tests/connectivity_tests.cc \
+			   tests/random_tests.cc \
 			   tests/common_tests.cc
 
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
@@ -28,7 +29,9 @@ SOURCES = src/coupling.cc \
 		  src/integrator.cc \
 		  src/observer.cc \
 		  src/connectivity.cc \
-		  src/mpi_integrator.cc
+		  src/mpi_integrator.cc \
+		  src/random.cc
+
 OBJS = $(SOURCES:.cc=.o)
 
 TOOL_SOURCES = src/seq_bench.cc 
