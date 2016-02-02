@@ -56,7 +56,8 @@ void integrator::step()
 void integrator::dfun_eval(	unsigned int node,
 							const local_state_type phi, 
 							double time_offset, 
-							local_state_type &dphidt)
+							local_state_type &df,
+							local_state_type &dg)
 {
 	local_coupling_type l_coupling = local_coupling_type(this->model->n_vars());
 	(*this->coupling)( this->connectivity[node], 
@@ -66,16 +67,19 @@ void integrator::dfun_eval(	unsigned int node,
 
 	(*this->model)(	phi,
 					l_coupling,
-					dphidt);
+					df,
+					dg);
 }
 
 double euler::scheme(unsigned int node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
-	local_state_type dphidt = local_state_type(this->model->n_vars());
-	this->dfun_eval(node, phi, 0.0, dphidt);
+	local_state_type df = local_state_type(this->model->n_vars());
+	local_state_type dg = local_state_type(this->model->n_vars()); // this gets ignored...
+	
+	this->dfun_eval(node, phi, 0.0, df, dg);
 	for(local_state_type::size_type dim=0; dim<phi.size();dim++){
-		new_state[dim] = phi[dim] + this->dt * dphidt[dim];
+		new_state[dim] = phi[dim] + this->dt * df[dim]; 
 	}
 
 	return this->dt; //eqidistant timestepping here

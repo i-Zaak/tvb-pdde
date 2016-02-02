@@ -26,7 +26,7 @@ class population_model
 class generic_2d_oscillator : public population_model
 {
 	private:
-		// todo setters
+		// TODO getters, setters
 		double tau;
 		double a;
 		double b;
@@ -39,6 +39,7 @@ class generic_2d_oscillator : public population_model
 		double alpha;
 		double beta;
 		double gamma;
+		double sigma; // coefficient for noise driven term
 	public:
 		inline unsigned int n_vars() {
 			return 2;
@@ -54,7 +55,8 @@ class generic_2d_oscillator : public population_model
 								double g = 0.0,
 								double alpha = 1.0,
 								double beta = 1.0,
-								double gamma = 1.0	);//TODO inline?
+								double gamma = 1.0,
+								double sigma = 0.001 );//TODO inline?
 		void operator()(	const local_state_type &phi, 
 							const local_coupling_type &coupling, 
 							local_state_type &df,

@@ -10,7 +10,8 @@ generic_2d_oscillator::generic_2d_oscillator( double tau, double a,
 								double g,
 								double alpha,
 								double beta,
-								double gamma)
+								double gamma,
+								double sigma)
 {
 	this->tau = tau;
 	this->a = a;
@@ -24,6 +25,7 @@ generic_2d_oscillator::generic_2d_oscillator( double tau, double a,
 	this->alpha = alpha;
 	this->beta = beta;
 	this->gamma = gamma;
+	this->sigma = sigma;
 }
 
 
@@ -47,6 +49,9 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 
 	df[0] = d * tau * (alpha * W - f * V*V*V + e * V*V + g * V + gamma * I + gamma *c_0 );
 	df[1] = d * (a + b * V + c * V*V - beta * W) / tau;
+
+	dg[0] = sigma;
+	dg[1] = sigma;
 
 
 }

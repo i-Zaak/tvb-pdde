@@ -31,7 +31,8 @@ class integrator
 		void dfun_eval(	unsigned int node,
 						const local_state_type phi, 
 						double time_offset, 
-						local_state_type &dphidt);
+						local_state_type &df,
+						local_state_type &dg);
 
 	public:
 		global_history_type history; //TODO move to private when observers are implemented
