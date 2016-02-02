@@ -6,6 +6,7 @@
 #include "history.h"
 #include "coupling.h"
 #include "observer.h"
+#include "random.h"
 /**
  Performs the main integration loop for every node:
   * query history
@@ -53,11 +54,6 @@ class integrator
 		void operator()(unsigned long n_steps);
 };
 
-class stochastic_integrator : public integrator
-{
-
-};
-
 class euler : public integrator
 {
 	private:
@@ -73,6 +69,21 @@ class euler : public integrator
 											initial_conditions, observer,
 											dt
 							){};
+};
+class euler_maruyama : public integrator
+{
+	private:
+		double scheme(unsigned long node, local_state_type &new_state);
+		rng *noise_generator;
+	public:
+		euler_maruyama(		population_model *model,
+							population_coupling *coupling,
+							const global_connectivity_type &connectivity,
+							const global_history_type &initial_conditions,
+							solution_observer *observer,
+							rng *noise_generator,
+							double dt
+						);
 };
 
 #endif

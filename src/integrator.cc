@@ -85,6 +85,39 @@ double euler::scheme(unsigned long node, local_state_type &new_state)
 	return this->dt; //eqidistant timestepping here
 }
 
+euler_maruyama::euler_maruyama(		population_model *model,
+									population_coupling *coupling,
+									const global_connectivity_type &connectivity,
+									const global_history_type &initial_conditions,
+									solution_observer *observer,
+									rng *noise_generator,
+									double dt
+								):integrator( 	model, coupling, connectivity, 
+												initial_conditions, observer,
+												dt
+								)
+{
+	this->noise_generator = noise_generator;
+};
+
+
+double euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
+{
+	local_state_type phi = this->history[node]->get_values_at(0); // current 
+	local_state_type df = local_state_type(this->model->n_vars());
+	local_state_type dg = local_state_type(this->model->n_vars()); 
+
+	local_state_type dw = local_state_type(this->model->n_vars());
+	this->noise_generator->fill_normal(dw);
+	
+	this->dfun_eval(node, phi, 0.0, df, dg);
+	double sqrtdt = sqrt(this->dt); // needed for \delta W
+	for(local_state_type::size_type dim=0; dim<phi.size();dim++){
+		new_state[dim] = phi[dim] + this->dt * df[dim] + sqrtdt * dg[dim] * dw[dim]; 
+	}
+
+	return this->dt; //eqidistant timestepping here
+}
 
 global_history_type integrator::constant_initial_conditions(
 		const global_connectivity_type &connectivity,

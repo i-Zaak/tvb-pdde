@@ -2,7 +2,8 @@
 #include "integrator.h"
 
 //TODO refactor a lot of the initialization to constructors/configuration...
-TEST_CASE("Integration time stepping", "[euler method]")
+//also document the computation ;)
+TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 {
 	unsigned long n_nodes = 13;
 	double dt = 0.2;
@@ -59,6 +60,24 @@ TEST_CASE("Integration time stepping", "[euler method]")
 				REQUIRE(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[0][4].second[1]));
 			}
 		}
+	}
+
+	SECTION("stochastic integration"){
+		raw_observer *observer = new raw_observer(n_nodes); //this could be in the integrator constructor
+		rng *noise_generator = new boost_prng();
+		noise_generator->seed(42);
+
+
+		euler_maruyama integrator = euler_maruyama(
+				model, coupling, connectivity, initial_conditions, observer, 
+				noise_generator, dt);
+
+		integrator(5);
+		REQUIRE(observer->get_solution()[0][0].second[0] ==Approx(1.620173) );
+		REQUIRE(observer->get_solution()[0][0].second[1] ==Approx(1.522165) );
+		REQUIRE(observer->get_solution()[0][4].second[0] ==Approx(1.70136891) );
+		REQUIRE(observer->get_solution()[0][4].second[1] ==Approx(1.20410014) );
+		//TODO test incorporation of coupling as in deterministic case?
 	}
 
 }
