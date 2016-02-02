@@ -114,11 +114,17 @@ bin:
 clean:
 	rm -rf bin/* src/*.o tests/*.o src/*.d tests/*.d
 
+ifeq ($(MPI),1)
 test:bin/tests bin/mpi_tests
 	@echo "Sequential tests"
 	./bin/tests
 	@echo "MPI tests"
 	mpirun -n 2 ./bin/mpi_tests
+else
+test:bin/tests
+	@echo "Sequential tests"
+	./bin/tests
+endif
 
 test-gdb:bin/tests
 	gdb ./bin/tests
