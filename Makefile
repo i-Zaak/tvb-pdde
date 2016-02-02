@@ -1,4 +1,3 @@
-all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
 # use following variables to control the build:
 # OPENMP=[1|0]		adds OpenMP compiler flags, default 0 
@@ -23,8 +22,10 @@ endif
 
 ifeq ($(MPI),1)
 	CC = $(MPICC)
+all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 else
 	CC = g++
+all:bin/tests bin/seq_bench 
 endif
 
 CFLAGS = -Wall 
