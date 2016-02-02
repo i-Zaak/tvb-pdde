@@ -125,7 +125,8 @@ void mpi_integrator::operator()(unsigned long n_steps)
 void mpi_integrator::dfun_eval(	unsigned long node,
 							const local_state_type phi, 
 							double time_offset, 
-							local_state_type &dphidt)
+							local_state_type &df,
+							local_state_type &dg)
 {
 	local_coupling_type l_coupling = local_coupling_type(this->model->n_vars());
 	(*this->coupling)( this->connectivity[node], 
@@ -135,21 +136,61 @@ void mpi_integrator::dfun_eval(	unsigned long node,
 
 	(*this->model)(	phi,
 					l_coupling,
-					dphidt);
+					df,
+					dg);
 }
 
-double mpi_euler_deterministic::scheme(unsigned long node, local_state_type &new_state)
+double mpi_euler::scheme(unsigned long node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
-	local_state_type dphidt = local_state_type(this->model->n_vars());
-	this->dfun_eval(node, phi, 0.0, dphidt);
+	local_state_type df = local_state_type(this->model->n_vars());
+	local_state_type dg = local_state_type(this->model->n_vars());
+	this->dfun_eval(node, phi, 0.0, df, dg);
 	for(local_state_type::size_type dim=0; dim<phi.size();dim++){
-		new_state[dim] = phi[dim] + this->dt * dphidt[dim];
+		new_state[dim] = phi[dim] + this->dt * df[dim];
 	}
 
 	return this->dt; //eqidistant timestepping here
 }
 
+mpi_euler_maruyama::mpi_euler_maruyama(	
+		population_model *model,
+		population_coupling *coupling,
+		const global_connectivity_type &connectivity,
+		const global_history_type &initial_conditions,
+		solution_observer *observer,
+		rng *noise_generator,
+		double dt,
+		const neighbor_map_type &recv_node_ids, 
+		const neighbor_map_type &send_node_ids
+		):mpi_integrator(
+			model, coupling, connectivity, 
+			initial_conditions, observer,
+			dt,
+			recv_node_ids, 
+			send_node_ids
+			)
+{
+	this->noise_generator = noise_generator;
+};
+
+double mpi_euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
+{
+	local_state_type phi = this->history[node]->get_values_at(0); // current 
+	local_state_type df = local_state_type(this->model->n_vars());
+	local_state_type dg = local_state_type(this->model->n_vars()); 
+
+	local_state_type dw = local_state_type(this->model->n_vars());
+	this->noise_generator->fill_normal(dw);
+	
+	this->dfun_eval(node, phi, 0.0, df, dg);
+	double sqrtdt = sqrt(this->dt); // needed for \delta W
+	for(local_state_type::size_type dim=0; dim<phi.size();dim++){
+		new_state[dim] = phi[dim] + this->dt * df[dim] + sqrtdt * dg[dim] * dw[dim]; 
+	}
+
+	return this->dt; //eqidistant timestepping here
+}
 
 
 // More sophisticated (i.e. requiring communication) initial conditions to 
