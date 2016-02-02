@@ -40,7 +40,7 @@ def mesh_to_sparse_dist(mesh, d_max, out_fname):
         ids = np.intersect1d(xids,yids,assume_unique=True)
 
         dists = np.linalg.norm(verts[ids,:]-[x_n,y_n],axis=1)
-        dists_th = dists < 10
+        dists_th = dists < 4
         ids = ids[dists_th]
         dists = dists[dists_th]
         

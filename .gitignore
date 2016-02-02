@@ -6,3 +6,5 @@ bin/*
 *.o
 *.d
 var/*
+pbs_scripts/*sh
+pbs_scripts/*sh.*

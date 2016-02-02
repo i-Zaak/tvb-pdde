@@ -17,9 +17,9 @@ integrator::integrator(	population_model *model,
 	this->n_nodes = initial_conditions.size();
 }
 
-void integrator::operator()(unsigned int n_steps)
+void integrator::operator()(unsigned long n_steps)
 {
-	for(unsigned int i=0;i<n_steps;i++) {
+	for(unsigned long i=0;i<n_steps;i++) {
 		step();
 	}
 }
@@ -53,7 +53,7 @@ void integrator::step()
  Wraps the coupling and local model evaluation to one reasonable function call.
  To be used in the integrator scheme instead of direct calls to model/coupling.
  */
-void integrator::dfun_eval(	unsigned int node,
+void integrator::dfun_eval(	unsigned long node,
 							const local_state_type phi, 
 							double time_offset, 
 							local_state_type &df,
@@ -71,7 +71,7 @@ void integrator::dfun_eval(	unsigned int node,
 					dg);
 }
 
-double euler::scheme(unsigned int node, local_state_type &new_state)
+double euler::scheme(unsigned long node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
 	local_state_type df = local_state_type(this->model->n_vars());
@@ -110,9 +110,9 @@ global_history_type integrator::constant_initial_conditions(
 
 	// create buffers and fill with constant state
 	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		int length = ceil(max_delays[i] / dt)+1;
+		unsigned long length = ceil(max_delays[i] / dt)+1;
 		initial_conditions[i] = history->create_history(length, dt, model->n_vars());
-		for(int j = 0; j < length; j++) {
+		for(unsigned long j = 0; j < length; j++) {
 			initial_conditions[i]->add_state(values);
 		}
 	}

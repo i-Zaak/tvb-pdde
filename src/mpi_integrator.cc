@@ -46,11 +46,11 @@ mpi_integrator::~mpi_integrator()
 	}
 }
 
-void mpi_integrator::operator()(unsigned int n_steps)
+void mpi_integrator::operator()(unsigned long n_steps)
 {
 	
 	
-	for(unsigned int i=0;i<n_steps;i++) {
+	for(unsigned long i=0;i<n_steps;i++) {
 		global_state_type global_state = global_state_type(this->n_nodes);
 		local_state_type local_state = local_state_type(this->model->n_vars());
 		
@@ -68,8 +68,8 @@ void mpi_integrator::operator()(unsigned int n_steps)
 		std::vector<MPI_Request> reqs;
 		reqs.reserve( send_ids.size() + recv_ids.size());
 		for (unsigned long n_id=0; n_id < recv_ids.size(); n_id++) {
-			int n_recv_nodes = recv_ids[n_id].second.size(); 
-			int buf_length = n_recv_nodes * this->model->n_vars(); //this could be precomputed...
+			unsigned long n_recv_nodes = recv_ids[n_id].second.size(); 
+			unsigned long buf_length = n_recv_nodes * this->model->n_vars(); //this could be precomputed...
 			MPI_Request req;
 			MPI_Irecv( this->recv_buffers[n_id][0], buf_length, MPI_DOUBLE, this->recv_ids[n_id].first, i, MPI_COMM_WORLD, &req);
 			reqs.push_back(req);
@@ -83,7 +83,7 @@ void mpi_integrator::operator()(unsigned int n_steps)
 					this->send_buffers[n_id][j][dim] = global_state[ send_ids[n_id].first ][dim];
 				}
 			}
-			int buf_length = n_send_nodes * this->model->n_vars();
+			unsigned long buf_length = n_send_nodes * this->model->n_vars();
 			MPI_Request req;
 			MPI_Isend(	this->send_buffers[n_id][0], buf_length,MPI_DOUBLE, this->send_ids[n_id].first, i, MPI_COMM_WORLD, &req );
 			reqs.push_back(req);
@@ -122,7 +122,7 @@ void mpi_integrator::operator()(unsigned int n_steps)
  Wraps the coupling and local model evaluation to one reasonable function call.
  To be used in the integrator scheme instead of direct calls to model/coupling.
  */
-void mpi_integrator::dfun_eval(	unsigned int node,
+void mpi_integrator::dfun_eval(	unsigned long node,
 							const local_state_type phi, 
 							double time_offset, 
 							local_state_type &dphidt)
@@ -138,7 +138,7 @@ void mpi_integrator::dfun_eval(	unsigned int node,
 					dphidt);
 }
 
-double mpi_euler_deterministic::scheme(unsigned int node, local_state_type &new_state)
+double mpi_euler_deterministic::scheme(unsigned long node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
 	local_state_type dphidt = local_state_type(this->model->n_vars());
