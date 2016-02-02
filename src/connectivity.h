@@ -7,8 +7,7 @@
 
 struct connection
 {
-	int from;
-	//int to;
+	unsigned long from;
 	double delay;
 	double weight;
 };

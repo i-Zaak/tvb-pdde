@@ -16,7 +16,7 @@ global_connectivity_type connectivity_from_mtx(std::string filename)
 	global_connectivity_type connectivity = global_connectivity_type(n_nodes);
 
 	for(unsigned long i=0; i < nnz; i++){
-		int m, n;
+		unsigned long m, n;
 		double delay;
 		infile >> m >> n >> delay;
 		
@@ -37,7 +37,7 @@ global_connectivity_type connectivity_from_mtx(std::string filename)
 	return connectivity;
 }
 
-std::ifstream& seek_line(std::ifstream& file, unsigned int line_num){
+std::ifstream& seek_line(std::ifstream& file, unsigned long line_num){
     file.seekg(std::ios::beg);
     for(unsigned long i=0; i < line_num - 1; ++i){
 	        file.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
@@ -56,12 +56,12 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 	connectivity.resize(n_part_nodes);
 
 	// global ids -> local ids
-	std::map<int, int> node_map=std::map<int,int>();
+	std::map<unsigned long, unsigned long> node_map=std::map<unsigned long,unsigned long>();
 
 	// local nodes
 	unsigned long node_id = 0;
 	for (unsigned long i = 0; i < n_part_nodes; i++) {
-		int node;
+		unsigned long node;
 		part_file >> node;
 		node_map.insert(std::make_pair(node,node_id));
 		node_id++;
@@ -69,15 +69,15 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 
 	// remote nodes
 	n_buffered_nodes = n_part_nodes;
-	while(!part_file.eof()){
-		unsigned long neigh_id, conn_type, n_neigh_nodes;
-		part_file >> neigh_id >> conn_type >> n_neigh_nodes;
+	unsigned long neigh_id, conn_type, n_neigh_nodes;
+	//while(!part_file.eof()){
+	while( part_file >> neigh_id >> conn_type >> n_neigh_nodes){
 		if(conn_type == 0){
 			//receive
-			std::vector<int> recv_ids(n_neigh_nodes);
+			std::vector<unsigned long> recv_ids(n_neigh_nodes);
 			//connectivity.resize(connectivity.size() + n_neigh_nodes);
 			for (unsigned long i = 0; i < n_neigh_nodes; i++) {
-				int node; 
+				unsigned long node; 
 				part_file >> node;
 				node_map.insert(std::make_pair(node,node_id));
 				recv_ids[i] = node_id;
@@ -87,9 +87,9 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 			n_buffered_nodes += recv_ids.size();
 		}else{
 			//send
-			std::vector<int> send_ids(n_neigh_nodes);
+			std::vector<unsigned long> send_ids(n_neigh_nodes);
 			for (unsigned long i = 0; i < n_neigh_nodes; i++) {
-				int node; 
+				unsigned long node; 
 				part_file >> node;
 				send_ids[i] = node_map[node];
 			}
@@ -101,11 +101,11 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 	unsigned long n_nodes, n_conns, type;
 	conn_file >> n_nodes >> n_conns >> type;
 	
-	int n_line = 0;
+	unsigned long n_line = 0;
 	std::string line;
 	std::getline(conn_file, line); //just mill the endline really...
-	for (line; std::getline(conn_file, line); ) {
-		std::map<int,int>::iterator node_it = node_map.find(n_line);
+	while(std::getline(conn_file, line)) {
+		std::map<unsigned long,unsigned long>::iterator node_it = node_map.find(n_line);
 		n_line++;
 		if( node_it != node_map.end() && node_it->second < n_part_nodes){
 			local_connectivity_type lconn = local_connectivity_type();

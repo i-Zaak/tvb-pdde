@@ -26,9 +26,9 @@ class integrator
 		unsigned long n_nodes;
 		// the actual integration scheme, performs one step and returns the
 		// length of the step in time
-		virtual double scheme(unsigned int node, local_state_type &new_state)=0; 
+		virtual double scheme(unsigned long node, local_state_type &new_state)=0; 
 		void step();
-		void dfun_eval(	unsigned int node,
+		void dfun_eval(	unsigned long node,
 						const local_state_type phi, 
 						double time_offset, 
 						local_state_type &dphidt);
@@ -49,13 +49,13 @@ class integrator
 				population_model* model,
 				double dt);
 
-		void operator()(unsigned int n_steps);
+		void operator()(unsigned long n_steps);
 };
 
 class euler_deterministic : public integrator
 {
 	private:
-		double scheme(unsigned int node, local_state_type &new_state);
+		double scheme(unsigned long node, local_state_type &new_state);
 	public:
 		euler_deterministic(	population_model *model,
 								population_coupling *coupling,

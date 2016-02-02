@@ -33,4 +33,14 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 	REQUIRE(connectivity[143][16].delay == Approx(6.730340));
 	REQUIRE(connectivity[143][16].from == 124);
 	REQUIRE(connectivity[143][3].from == 152);
+	REQUIRE(recv_node_ids.size() == 3);
+	REQUIRE(send_node_ids.size() == 3);
+	REQUIRE(recv_node_ids[0].first == 0);
+	REQUIRE(recv_node_ids[0].second.size() == 3);
+	REQUIRE(send_node_ids[0].first == 0);
+	REQUIRE(send_node_ids[0].second.size() == 4);
+	REQUIRE(recv_node_ids[1].first == 1);
+	REQUIRE(recv_node_ids[1].second.size() == 24);
+	REQUIRE(send_node_ids[1].first == 1);
+	REQUIRE(send_node_ids[1].second.size() == 23);
 }

@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
 
 	double dt = atof(argv[3]);
-	int n_steps = atoi(argv[4]);
+	unsigned long n_steps = atoi(argv[4]);
 
 	
 	neighbor_map_type recv_node_ids; 
