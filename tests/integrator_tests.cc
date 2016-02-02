@@ -41,7 +41,7 @@ TEST_CASE("Integration time stepping", "[euler method]")
 		raw_observer *observer = new raw_observer(n_nodes); //this could be in the integrator constructor
 
 
-		euler_deterministic integrator = euler_deterministic(
+		euler integrator = euler(
 				model, coupling, connectivity, initial_conditions, observer,
 				dt);
 

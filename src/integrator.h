@@ -52,12 +52,12 @@ class integrator
 		void operator()(unsigned int n_steps);
 };
 
-class euler_deterministic : public integrator
+class euler : public integrator
 {
 	private:
 		double scheme(unsigned int node, local_state_type &new_state);
 	public:
-		euler_deterministic(	population_model *model,
+		euler(	population_model *model,
 								population_coupling *coupling,
 								const global_connectivity_type &connectivity,
 								const global_history_type &initial_conditions,

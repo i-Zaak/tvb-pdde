@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 			connectivity, connectivity.size(),values, history, model, dt ); 
 	linear_coupling *coupling = new linear_coupling();
 	raw_observer *observer = new raw_observer(connectivity.size());
-	euler_deterministic integrator = euler_deterministic(
+	euler integrator = euler(
 			model, coupling, connectivity, initial_conditions, observer,
 			dt);
 

@@ -69,7 +69,7 @@ void integrator::dfun_eval(	unsigned int node,
 					dphidt);
 }
 
-double euler_deterministic::scheme(unsigned int node, local_state_type &new_state)
+double euler::scheme(unsigned int node, local_state_type &new_state)
 {
 	local_state_type phi = this->history[node]->get_values_at(0); // current 
 	local_state_type dphidt = local_state_type(this->model->n_vars());
