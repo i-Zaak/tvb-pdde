@@ -2,18 +2,31 @@ all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 
 # use following variables to control the build:
 # OPENMP=[1|0]		adds OpenMP compiler flags, default 0 
-# INSTRUMENT=[1|0]	uses scalasca to instrument MPI parts, default 0
+# MPI=[1|0]			enables MPI, default 0 
+# INSTRUMENT=[1|0]	uses scalasca to instrument MPI parts, default 0, also forces MPI and PROFILE
 # DEBUG=[1|0]		turns of -O optimization and adds -g flag, default 0
 # PROFILE=[1|0]		turns of -O optimization and adds -g and -pg flag, default 0
 
-ifeq (INSTRUMENT,1)
-	MPI_CC = scalasca -instrument mpic++
+OPENMP=0
+MPI=0
+INSTRUMENT=0
+DEBUG=0
+PROFILE=0
+
+ifeq ($(INSTRUMENT),1)
+	MPICC = scalasca -instrument mpic++
+	MPI=1
+	PROFILE=1
 else
-	MPI_CC = mpic++
+	MPICC = mpic++
 endif
-CC = g++
-bin/mpi_bench:CC = $(MPI_CC)
-bin/mpi_tests:CC = $(MPI_CC)
+
+ifeq ($(MPI),1)
+	CC = $(MPICC)
+else
+	CC = g++
+endif
+
 CFLAGS = -Wall 
 
 ifeq ($(DEBUG),1)
