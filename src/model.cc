@@ -31,10 +31,12 @@ generic_2d_oscillator::generic_2d_oscillator( double tau, double a,
 
 void generic_2d_oscillator::operator()(	const local_state_type &phi, 
 										const local_coupling_type &coupling, 
-										local_state_type &dphidt)
+										local_state_type &df,
+										local_state_type &dg)
 {
 
-	assert( phi.size() == dphidt.size() && 
+	assert( phi.size() == df.size() && 
+			phi.size() == dg.size() && 
 			phi.size() == coupling.size() && 
 			phi.size() == 2); 
 
@@ -43,8 +45,8 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 
 	double c_0 = coupling[0];
 
-	dphidt[0] = d * tau * (alpha * W - f * V*V*V + e * V*V + g * V + gamma * I + gamma *c_0 );
-	dphidt[1] = d * (a + b * V + c * V*V - beta * W) / tau;
+	df[0] = d * tau * (alpha * W - f * V*V*V + e * V*V + g * V + gamma * I + gamma *c_0 );
+	df[1] = d * (a + b * V + c * V*V - beta * W) / tau;
 
 
 }

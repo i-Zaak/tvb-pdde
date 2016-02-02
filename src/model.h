@@ -3,14 +3,13 @@
 
 #include "common.h"
 /**
- Provides `dfun` function to evaluate the right-hand side of the model for
- single population. Also holds the constants. Sizes of the arrays are fixed 
- for given model. 
+ Provides evaluation of the right-hand side of the model for single population. Namely the functions `f` and `g` from the Langevin form of the equations. Also holds the constants. Sizes of the arrays are fixed for given model. 
  `n_vars`		number of state variables
  `phi`			local set of state variables
  `coupling` 	contributions from other populations: can have multiple
  				components (coupling variables)
- `dphidt`		result of the same size as `phi`
+ `df`			result of the same size as `phi`: drift
+ `dg`			result of the same size as `phi`: diffusion
 
 
  */
@@ -20,7 +19,8 @@ class population_model
 		virtual unsigned int n_vars()=0;
 		virtual void operator()(	const local_state_type &phi, 
 									const local_coupling_type &coupling, 
-									local_state_type &dphidt)=0;
+									local_state_type &df,
+									local_state_type &dg)=0;
 };
 
 class generic_2d_oscillator : public population_model
@@ -57,7 +57,8 @@ class generic_2d_oscillator : public population_model
 								double gamma = 1.0	);//TODO inline?
 		void operator()(	const local_state_type &phi, 
 							const local_coupling_type &coupling, 
-							local_state_type &dphidt);
+							local_state_type &df,
+							local_state_type &dg);
 };
 
 #endif

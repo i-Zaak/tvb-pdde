@@ -52,6 +52,11 @@ class integrator
 		void operator()(unsigned int n_steps);
 };
 
+class stochastic_integrator : pulblic integrator
+{
+
+};
+
 class euler : public integrator
 {
 	private:
