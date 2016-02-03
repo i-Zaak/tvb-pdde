@@ -35,7 +35,7 @@ ifeq ($(DEBUG),1)
 else ifeq ($(PROFILE),1)
 	CFLAGS += -g -O0
 else
-	CFLAGS += -O3
+	CFLAGS += -Ofast
 endif
 
 ifeq ($(PROFILE),1)
@@ -64,7 +64,8 @@ TEST_SOURCES = tests/main.cc \
 
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
 
-MPI_TEST_SOURCES = tests/mpi_main.cc
+MPI_TEST_SOURCES = tests/mpi_main.cc \
+				   tests/mpi_integrator_tests.cc
 MPI_TEST_OBJS = $(MPI_TEST_SOURCES:.cc=.o)
 
 SOURCES = src/coupling.cc \
@@ -119,7 +120,7 @@ test:bin/tests bin/mpi_tests
 	@echo "Sequential tests"
 	./bin/tests
 	@echo "MPI tests"
-	mpirun -n 2 ./bin/mpi_tests
+	mpirun -n 4 ./bin/mpi_tests
 else
 test:bin/tests
 	@echo "Sequential tests"
