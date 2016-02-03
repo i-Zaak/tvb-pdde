@@ -71,18 +71,19 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
     CHECK(size == 4); //required for partitioned test inputs
     CHECK(task_id < 4); //sanity check...
 
-	unsigned long n_local_nodes;
+	unsigned long n_local_nodes = 4;
+	unsigned long n_buffered_nodes;
 	if(task_id == 1){
-		n_local_nodes = 5;
+		n_buffered_nodes = 5;
 	}else{
-		n_local_nodes =4;
+		n_buffered_nodes =4;
 	}
 	double dt = 0.2;
 
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 
 	// all disconnected, only 3->4 with 0.1 delay (between proc 0 and 1)
-	global_connectivity_type connectivity = global_connectivity_type(n_local_nodes); 
+	global_connectivity_type connectivity = global_connectivity_type(n_buffered_nodes); 
 	neighbor_map_type recv_node_ids; 
 	neighbor_map_type send_node_ids;
 	if(task_id == 0){ 
@@ -91,7 +92,7 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		send_node_ids.push_back(std::make_pair(1, send_ids));
 	} else if(task_id == 1){
 		std::vector<unsigned long> recv_ids;
-		recv_ids.push_back(4);
+		recv_ids.push_back(3);
 		recv_node_ids.push_back(std::make_pair(0,recv_ids));
 		local_connectivity_type connections = local_connectivity_type();
 		connection conn = {
@@ -109,40 +110,44 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 	lint_history_factory* history = new lint_history_factory();
 	local_state_type values = local_state_type(model->n_vars(),1.6);
 	global_history_type initial_conditions = mpi_integrator::constant_initial_conditions(
-			connectivity, n_local_nodes,
+			connectivity, n_buffered_nodes,
 			values, history, model, dt ); 
 
 	SECTION("generating initial conditions"){
-		for(unsigned long i = 0; i< n_local_nodes; i++){
-			if(i == 3 && task_id == 0){
+		for(unsigned long i = 0; i< n_buffered_nodes; i++){
+			if(i == 4 && task_id == 1){
+				INFO("process " << task_id)
 				CHECK(initial_conditions[i]->get_length() == 2);
 			}else{
+				INFO("process " << task_id)
 				CHECK(initial_conditions[i]->get_length() == 1);
 			}
 		}
 	}
 
 	SECTION("integration"){
-		raw_observer *observer = new raw_observer(n_local_nodes);
+		raw_observer *observer = new raw_observer(n_buffered_nodes);
 
 		mpi_euler integrator = mpi_euler(
 				model, coupling, connectivity, initial_conditions, observer,
 				dt, recv_node_ids, send_node_ids);
 
 		integrator(5);
-		if (task_id == 0) {
-			CHECK(observer->get_solution()[0][0].second[0] ==Approx(1.620736) );
-			CHECK(observer->get_solution()[0][0].second[1] ==Approx(1.5216) );
-			CHECK(observer->get_solution()[0][4].second[0] ==Approx(1.70200895) );
-			CHECK(observer->get_solution()[0][4].second[1] ==Approx(1.20292698) );
-		}
+		int ref_id = 1;
+		CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) );
+		CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) );
+		CHECK(observer->get_solution()[ref_id][4].second[0] ==Approx(1.70200895) );
+		CHECK(observer->get_solution()[ref_id][4].second[1] ==Approx(1.20292698) );
+
 		for(unsigned long i = 0; i< n_local_nodes; i++){
-			if(i == 0 && task_id ==1){
-				CHECK(observer->get_solution()[i][4].second[0] != Approx(observer->get_solution()[0][4].second[0]));
-				CHECK(observer->get_solution()[i][4].second[1] != Approx(observer->get_solution()[0][4].second[1]));
+			INFO("process: " << task_id);
+			INFO("node: " << i);
+			if(i == 0 && task_id == 1){
+				CHECK(observer->get_solution()[i][4].second[0] != Approx(observer->get_solution()[ref_id][4].second[0]));
+				CHECK(observer->get_solution()[i][4].second[1] != Approx(observer->get_solution()[ref_id][4].second[1]));
 			}else{
-				CHECK(observer->get_solution()[i][4].second[0] == Approx(observer->get_solution()[0][4].second[0]));
-				CHECK(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[0][4].second[1]));
+				CHECK(observer->get_solution()[i][4].second[0] == Approx(observer->get_solution()[ref_id][4].second[0]));
+				CHECK(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[ref_id][4].second[1]));
 			}
 		}
 	}
