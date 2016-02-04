@@ -125,14 +125,25 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		}
 	}
 
+	raw_observer *observer = new raw_observer(n_buffered_nodes);
+
+	mpi_euler integrator = mpi_euler(
+			model, coupling, connectivity, initial_conditions, observer,
+			dt, recv_node_ids, send_node_ids);
+
+	SECTION("data exchange"){
+		integrator(1);
+		if(task_id == 1){
+			CHECK( integrator.history.size() == 5);
+			CHECK( integrator.history[4]->get_length() == 2);
+			CHECK( integrator.history[4]->get_values_at(0).size() == 2 );
+			CHECK( integrator.history[4]->get_values_at(0)[0] != Approx(1.6) );
+			CHECK( integrator.history[4]->get_values_at(0)[1] != Approx(1.6) );
+		}
+	}
+
 	SECTION("integration"){
-		raw_observer *observer = new raw_observer(n_buffered_nodes);
-
-		mpi_euler integrator = mpi_euler(
-				model, coupling, connectivity, initial_conditions, observer,
-				dt, recv_node_ids, send_node_ids);
-
-		integrator(5);
+		integrator(4);
 		int ref_id = 1;
 		CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) );
 		CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) );
