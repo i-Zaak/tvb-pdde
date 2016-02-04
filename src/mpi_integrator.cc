@@ -51,7 +51,7 @@ void mpi_integrator::operator()(unsigned long n_steps)
 	
 	
 	for(unsigned long i=0;i<n_steps;i++) {
-		global_state_type global_state = global_state_type(this->n_nodes);
+		global_state_type global_state = global_state_type(this->history.size()); //count also the shadow nodes..
 		local_state_type local_state = local_state_type(this->model->n_vars());
 		
 		// compute new state phi(t_{n+1})
@@ -98,8 +98,10 @@ void mpi_integrator::operator()(unsigned long n_steps)
 			unsigned long n_recv_nodes = this->recv_ids[n_id].second.size();
 			for(unsigned long j=0; j < n_recv_nodes; j++){
 				for (unsigned int dim = 0; dim < this->model->n_vars(); dim++) {
-					global_state[ recv_ids[n_id].first ][dim] = this->recv_buffers[n_id][j][dim];
+					local_state[dim] = this->recv_buffers[n_id][j][dim];
+					
 				}
+				global_state[ recv_ids[n_id].second[j] ] = local_state;
 			}
 
 		}

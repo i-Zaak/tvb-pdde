@@ -92,7 +92,7 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		send_node_ids.push_back(std::make_pair(1, send_ids));
 	} else if(task_id == 1){
 		std::vector<unsigned long> recv_ids;
-		recv_ids.push_back(3);
+		recv_ids.push_back(4);
 		recv_node_ids.push_back(std::make_pair(0,recv_ids));
 		local_connectivity_type connections = local_connectivity_type();
 		connection conn = {
@@ -147,18 +147,18 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		int ref_id = 1;
 		CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) );
 		CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) );
-		CHECK(observer->get_solution()[ref_id][4].second[0] ==Approx(1.70200895) );
-		CHECK(observer->get_solution()[ref_id][4].second[1] ==Approx(1.20292698) );
+		CHECK(observer->get_solution()[ref_id][3].second[0] ==Approx(1.70200895) );
+		CHECK(observer->get_solution()[ref_id][3].second[1] ==Approx(1.20292698) );
 
 		for(unsigned long i = 0; i< n_local_nodes; i++){
 			INFO("process: " << task_id);
 			INFO("node: " << i);
 			if(i == 0 && task_id == 1){
-				CHECK(observer->get_solution()[i][4].second[0] != Approx(observer->get_solution()[ref_id][4].second[0]));
-				CHECK(observer->get_solution()[i][4].second[1] != Approx(observer->get_solution()[ref_id][4].second[1]));
+				CHECK(observer->get_solution()[i][3].second[0] != Approx(observer->get_solution()[ref_id][3].second[0]));
+				CHECK(observer->get_solution()[i][3].second[1] != Approx(observer->get_solution()[ref_id][3].second[1]));
 			}else{
-				CHECK(observer->get_solution()[i][4].second[0] == Approx(observer->get_solution()[ref_id][4].second[0]));
-				CHECK(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[ref_id][4].second[1]));
+				CHECK(observer->get_solution()[i][3].second[0] == Approx(observer->get_solution()[ref_id][3].second[0]));
+				CHECK(observer->get_solution()[i][3].second[1] == Approx(observer->get_solution()[ref_id][3].second[1]));
 			}
 		}
 	}
