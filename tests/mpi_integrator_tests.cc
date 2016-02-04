@@ -131,34 +131,23 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 			model, coupling, connectivity, initial_conditions, observer,
 			dt, recv_node_ids, send_node_ids);
 
-	SECTION("data exchange"){
-		integrator(1);
-		if(task_id == 1){
-			CHECK( integrator.history.size() == 5);
-			CHECK( integrator.history[4]->get_length() == 2);
-			CHECK( integrator.history[4]->get_values_at(0).size() == 2 );
-			CHECK( integrator.history[4]->get_values_at(0)[0] != Approx(1.6) );
-			CHECK( integrator.history[4]->get_values_at(0)[1] != Approx(1.6) );
-		}
-	}
-
 	SECTION("integration"){
-		integrator(4);
+		integrator(5);
 		int ref_id = 1;
 		CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) );
 		CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) );
-		CHECK(observer->get_solution()[ref_id][3].second[0] ==Approx(1.70200895) );
-		CHECK(observer->get_solution()[ref_id][3].second[1] ==Approx(1.20292698) );
+		CHECK(observer->get_solution()[ref_id][4].second[0] ==Approx(1.70200895) );
+		CHECK(observer->get_solution()[ref_id][4].second[1] ==Approx(1.20292698) );
 
 		for(unsigned long i = 0; i< n_local_nodes; i++){
 			INFO("process: " << task_id);
 			INFO("node: " << i);
 			if(i == 0 && task_id == 1){
-				CHECK(observer->get_solution()[i][3].second[0] != Approx(observer->get_solution()[ref_id][3].second[0]));
-				CHECK(observer->get_solution()[i][3].second[1] != Approx(observer->get_solution()[ref_id][3].second[1]));
+				CHECK(observer->get_solution()[i][4].second[0] != Approx(observer->get_solution()[ref_id][4].second[0]));
+				CHECK(observer->get_solution()[i][4].second[1] != Approx(observer->get_solution()[ref_id][4].second[1]));
 			}else{
-				CHECK(observer->get_solution()[i][3].second[0] == Approx(observer->get_solution()[ref_id][3].second[0]));
-				CHECK(observer->get_solution()[i][3].second[1] == Approx(observer->get_solution()[ref_id][3].second[1]));
+				CHECK(observer->get_solution()[i][4].second[0] == Approx(observer->get_solution()[ref_id][4].second[0]));
+				CHECK(observer->get_solution()[i][4].second[1] == Approx(observer->get_solution()[ref_id][4].second[1]));
 			}
 		}
 	}
