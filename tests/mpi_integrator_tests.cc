@@ -152,5 +152,22 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		}
 	}
 
+	SECTION("stochastic integration"){
+		raw_observer *observer = new raw_observer(n_local_nodes); //this could be in the integrator constructor
+		rng *noise_generator = new boost_prng();
+		noise_generator->seed(42);
+
+
+		mpi_euler_maruyama integrator = mpi_euler_maruyama(
+				model, coupling, connectivity, initial_conditions, observer, 
+				noise_generator, dt, recv_node_ids, send_node_ids);
+
+		integrator(5);
+		if(task_id != 1){
+			CHECK(observer->get_solution()[0][0].second[0] ==Approx(1.620173) );
+			CHECK(observer->get_solution()[0][0].second[1] ==Approx(1.522165) );
+		}
+		// TODO: some more sensible test (requires globally synchronized pseudorandom variables. 
+	}
 
 }
