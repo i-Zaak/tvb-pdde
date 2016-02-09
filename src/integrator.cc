@@ -131,7 +131,7 @@ global_histories_type integrator::constant_initial_conditions(
 		double dt)
 {
 	global_histories_type initial_conditions = global_histories_type();
-	if(initial_conditions.size() == 0) return initial_conditions;
+	if(connectivities.size() == 0) return initial_conditions;
 
 
 	for (std::size_t i = 0; i < connectivities.size(); i++) {
