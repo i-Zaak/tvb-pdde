@@ -38,7 +38,8 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 {
 	assert( phi.size() == df.size() && 
 			phi.size() == dg.size() && 
-			phi.size() == 2); 
+			phi.size() == 2 &&
+			coupling.size() == 2); // :(
 
 	// TODO DEBUG macro for speed...
 	for (std::size_t i = 0; i < coupling.size(); i++) {
