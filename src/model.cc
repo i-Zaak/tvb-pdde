@@ -36,11 +36,14 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 										local_state_type &df,
 										local_state_type &dg)
 {
-
 	assert( phi.size() == df.size() && 
 			phi.size() == dg.size() && 
-			phi.size() == coupling.size() && 
 			phi.size() == 2); 
+
+	// TODO DEBUG macro for speed...
+	for (std::size_t i = 0; i < coupling.size(); i++) {
+		assert(phi.size() == coupling[i].size());
+	}
 
 	double V = phi[0];
 	double W = phi[1];
