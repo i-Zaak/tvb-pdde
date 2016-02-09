@@ -23,6 +23,8 @@ endif
 ifeq ($(MPI),1)
 	CC = $(MPICC)
 all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
+else ifeq ($(PRETTY),1)
+	CC = gccfilter -c g++
 else
 	CC = g++
 all:bin/tests bin/seq_bench 
