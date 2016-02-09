@@ -96,3 +96,50 @@ lint_history* lint_history_factory::create_history(unsigned long length, double 
 {
 	return new lint_history(length, dt, n_vars);
 }
+
+
+/*
+void global_history::push_state(std::size_t node, local_state_type state)
+{
+	this->history[node]->add_state(state);
+}
+*/
+
+void global_history::push_state(global_state_type global_state)
+{
+	assert(global_state.size() == this->history.size());
+	#pragma omp parallel for
+	for(std::size_t node=0; node < global_state.size(); node++){
+		this->history[node]->add_state(global_state[node]);
+	}
+
+}
+
+history_buffers* global_history::get_buffers(std::size_t node) const
+{
+	return this->history[node];
+}
+
+void scatter_gather_history::push_state(global_state_type state)
+{
+	for(std::size_t i=0; i < this->region_nodes.size(); i++){
+		std::size_t regsize = this->region_nodes[i].size();
+		if(regsize == 0) continue;
+
+		//TODO omp parallel sum
+		unsigned int ndim = state[0].size();
+		local_state_type mean=local_state_type(ndim,0.0);
+		for(std::size_t j=0; j < regsize; j++){
+			for (unsigned int dim = 0; i < ndim; dim++) {
+				mean[dim] += state[ this->region_nodes[i][j]][dim] / double(regsize);
+			}
+		}
+		this->history[i]->add_state(mean);
+	}
+
+}
+
+history_buffers* scatter_gather_history::get_buffers(std::size_t node)
+{
+	return this->history[this->nodes_region[node]];
+}

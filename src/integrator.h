@@ -22,7 +22,7 @@ class integrator
 		population_model *model; //could be private
 		population_coupling *coupling; //could be private
 		solution_observer *observer; //could be private
-		global_connectivity_type connectivity; //could be private
+		std::vector<global_connectivity_type> connectivities; //could be private
 		double dt;
 		unsigned long n_nodes;
 		// the actual integration scheme, performs one step and returns the
@@ -36,16 +36,16 @@ class integrator
 						local_state_type &dg);
 
 	public:
-		global_history_type history; //TODO move to private when observers are implemented
+		global_history *scheme_history;
+		std::vector<global_history*> histories; //TODO move to private when observers are implemented
 		integrator(	population_model *model,
 					population_coupling *coupling,
-					const global_connectivity_type &connectivity,
-					const global_history_type &initial_conditions,
+					const global_connectivities_type &connectivities,
+					const global_histories_type &initial_conditions,
 					solution_observer *observer,
 					double dt);
-		static global_history_type constant_initial_conditions(
-				const global_connectivity_type &connectivity,
-				unsigned long n_nodes, // at least connectivity.size()
+		static global_histories_type constant_initial_conditions(
+				const global_connectivities_type &connectivities,
 				const local_state_type &values,
 				history_factory* history,
 				population_model* model,
@@ -60,15 +60,15 @@ class euler : public integrator
 		double scheme(unsigned long node, local_state_type &new_state);
 	public:
 		euler(	population_model *model,
-								population_coupling *coupling,
-								const global_connectivity_type &connectivity,
-								const global_history_type &initial_conditions,
-								solution_observer *observer,
-								double dt
-							):integrator( 	model, coupling, connectivity, 
-											initial_conditions, observer,
-											dt
-							){};
+				population_coupling *coupling,
+				const std::vector<global_connectivity_type> &connectivities,
+				const std::vector<global_history*> &initial_conditions,
+				solution_observer *observer,
+				double dt
+			 ):integrator( 	model, coupling, connectivities, 
+				 initial_conditions, observer,
+				 dt
+				 ){};
 };
 class euler_maruyama : public integrator
 {
@@ -78,8 +78,8 @@ class euler_maruyama : public integrator
 	public:
 		euler_maruyama(		population_model *model,
 							population_coupling *coupling,
-							const global_connectivity_type &connectivity,
-							const global_history_type &initial_conditions,
+							const std::vector<global_connectivity_type> &connectivities,
+							const std::vector<global_history*> &initial_conditions,
 							solution_observer *observer,
 							rng *noise_generator,
 							double dt

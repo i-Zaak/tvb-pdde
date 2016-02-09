@@ -51,4 +51,39 @@ class lint_history_factory: public history_factory
 		lint_history* create_history(unsigned long length, double dt, unsigned long n_vars);
 };
 
+class global_history
+{
+	protected:
+		std::vector< history_buffers* > history; 
+	public:
+		global_history(std::vector< history_buffers* > history):
+			history(history){};
+		//TODO remove; hopefully not needed
+		//void push_state(std::size_t node, local_state_type state); 
+		virtual void push_state(global_state_type global_state);
+		virtual history_buffers *get_buffers(std::size_t node) const;
+};
+
+class scatter_gather_history: public global_history
+{
+	private:
+		std::vector< std::vector< std::size_t > > region_nodes;
+		std::vector< std::size_t > nodes_region;
+	public:
+		scatter_gather_history(
+				std::vector< history_buffers* > history, 
+				std::vector< std::vector< std::size_t > > region_nodes,
+				std::vector< std::size_t > nodes_region):
+			global_history(history),
+			region_nodes(region_nodes),
+			nodes_region(nodes_region){};
+		/**
+		 * node is global index node, the values are aggregated within region
+		 * and pushed to single bufer shared for all nodes in region.
+		 */
+		void push_state(global_state_type global_state);
+		history_buffers *get_buffers(std::size_t node);
+};
+
+
 #endif

@@ -11,6 +11,7 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 
 	// all disconnected, only 2->3 with 0.1 delay
+	global_connectivities_type connectivities = global_connectivities_type(n_nodes); 
 	global_connectivity_type connectivity = global_connectivity_type(n_nodes); 
 	local_connectivity_type connections = local_connectivity_type();
 	connection conn = {
@@ -20,20 +21,21 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	};
 	connections.push_back(conn);
 	connectivity[3] = connections; 
+	connectivities.push_back(connectivity); 
 
 
 	linear_coupling *coupling = new linear_coupling();
 	
 	lint_history_factory* history = new lint_history_factory();
 	local_state_type values = local_state_type(model->n_vars(),1.6);
-	global_history_type initial_conditions = integrator::constant_initial_conditions(
-			connectivity, connectivity.size(), values, history, model, dt ); 
+	global_histories_type initial_conditions = integrator::constant_initial_conditions(
+			connectivities, values, history, model, dt ); 
 	SECTION("generating initial conditions"){
 		for(unsigned long i = 0; i< n_nodes; i++){
 			if(i == 2){
-				REQUIRE(initial_conditions[i]->get_length() == 2);
+				REQUIRE(initial_conditions[0]->get_buffers(i)->get_length() == 2);
 			}else{
-				REQUIRE(initial_conditions[i]->get_length() == 1);
+				REQUIRE(initial_conditions[0]->get_buffers(i)->get_length() == 1);
 			}
 		}
 
@@ -43,7 +45,7 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 
 
 		euler integrator = euler(
-				model, coupling, connectivity, initial_conditions, observer,
+				model, coupling, connectivities, initial_conditions, observer,
 				dt);
 
 		integrator(5);
@@ -69,7 +71,7 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 
 
 		euler_maruyama integrator = euler_maruyama(
-				model, coupling, connectivity, initial_conditions, observer, 
+				model, coupling, connectivities, initial_conditions, observer, 
 				noise_generator, dt);
 
 		integrator(5);
@@ -85,19 +87,22 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	// see sets_init.py for data generation
 	global_connectivity_type connectivity = connectivity_from_mtx("data/test_init.mtx");
+	global_connectivities_type connectivities = global_connectivities_type();
+	connectivities.push_back(connectivity);
 	REQUIRE(connectivity.size() == 20);
 
 	lint_history_factory* history = new lint_history_factory();
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 	local_state_type values = local_state_type(model->n_vars(),42.0);
 	double dt=0.2;
-	global_history_type initial_conditions = integrator::constant_initial_conditions(
-			connectivity, connectivity.size(),values, history, model, dt ); 
+	global_histories_type initial_conditions = integrator::constant_initial_conditions(
+			connectivities,values, history, model, dt ); 
 	static const int arr[] = {3, 4, 5, 2, 6, 3, 6, 6, 4, 5, 6, 6, 6, 6, 4, 5, 4, 5, 4, 4}; 
 	std::vector<int> expected_buflengths(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
-	for(global_history_type::size_type i = 0; i < initial_conditions.size(); i++) {
-		REQUIRE(initial_conditions[i]->get_length() == expected_buflengths[i]);
+	std::size_t n_nodes = connectivity.size();
+	for(std::size_t i = 0; i < n_nodes; i++) {
+		REQUIRE(initial_conditions[0]->get_buffers(i)->get_length() == expected_buflengths[i]);
 	}
 
 }
