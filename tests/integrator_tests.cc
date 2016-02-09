@@ -11,7 +11,7 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 
 	// all disconnected, only 2->3 with 0.1 delay
-	global_connectivities_type connectivities = global_connectivities_type(n_nodes); 
+	global_connectivities_type connectivities = global_connectivities_type(); 
 	global_connectivity_type connectivity = global_connectivity_type(n_nodes); 
 	local_connectivity_type connections = local_connectivity_type();
 	connection conn = {
