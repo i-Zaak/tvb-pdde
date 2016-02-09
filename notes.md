@@ -43,7 +43,6 @@ integrator::step
 * src/seq_bench_regional.cc
   * [ ] napsat :)
 * tests/*
-  * prepsat...
-
-
-
+  * [x] prepsat...
+* src/integrator.cc:65 (`integrator::dfun_eval()`)
+  * vyresit vazbu mezi `coupling`, `connectivity`, `history` a iteraci pres uzly
