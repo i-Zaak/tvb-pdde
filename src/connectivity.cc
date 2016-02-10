@@ -4,9 +4,8 @@
 #include <sstream>
 #include "assert.h"
 
-global_connectivity_type connectivity_from_mtx(std::string filename)
+global_connectivity_type connectivity_from_mtx(std::ifstream &infile)
 {
-	std::ifstream infile(filename.c_str());
 	while (infile.peek() == '%') infile.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
 	unsigned long n_nodes, m_nodes, nnz; 
@@ -127,4 +126,33 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 		}
 	}
 	return n_buffered_nodes;
+}
+
+
+
+std::size_t read_regional_mapping(	std::ifstream& region_file,
+									std::ifstream& conn_file,
+									global_connectivity_type &connectivity,
+									std::vector< std::vector< std::size_t > > &region_nodes,
+									std::vector< std::size_t >&nodes_region)
+{
+	std::size_t n_nodes, n_regions;
+	part_file >> n_nodes >> n_regions;
+	region_nodes.resize(n_regions);
+	nodes_region.resize(n_nodes);
+	connectivity.resize(n_regions);
+
+	// read the mapping
+	for (std::size_t i = 0; i < n_nodes; i++) {
+		std::size_t reg;
+		part_file >> reg;
+		nodes_region[i] = reg;
+		region_nodes[reg].push_back(reg);
+	}
+
+	// read the connectivity
+	TODO
+	global_connectivity_type connectivity_from_mtx(std::string filename)
+
+	return n_regions; //what for?
 }

@@ -8,6 +8,7 @@
 #include "integrator.h"
 #include "model.h"
 #include "observer.h"
+#include "<fstream>"
 
 
 
@@ -17,9 +18,13 @@ int main(int argc, char* argv[])
 		std::cout << "usage: " << argv[0] << " connectivity_file.mtx dt n_steps" << std::endl;
 		return 1;
 	}
-	std::string filename = argv[1];
 	double dt = atof(argv[2]);
 	unsigned long n_steps = atoi(argv[3]);
+	std::ifstream infile(argv[1]);
+	if(!conn_file.is_open()) {
+		std::cout << "could not open " << argv[1] << std::endl;
+		return 2;
+	}
 
 	global_connectivity_type connectivity = connectivity_from_mtx(filename);
 	lint_history_factory* history = new lint_history_factory();
