@@ -143,3 +143,9 @@ history_buffers* scatter_gather_history::get_buffers(std::size_t node)
 {
 	return this->history[this->nodes_region[node]];
 }
+
+std::size_t scatter_gather_history::local_node_id(std::size_t global_node_id)
+{
+	return this->nodes_region[global_node_id];
+}
+

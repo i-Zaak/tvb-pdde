@@ -62,6 +62,7 @@ class global_history
 		//void push_state(std::size_t node, local_state_type state); 
 		virtual void push_state(global_state_type global_state);
 		virtual history_buffers *get_buffers(std::size_t node) const;
+		virtual std::size_t local_node_id(std::size_t global_node_id){return global_node_id;};
 };
 
 class scatter_gather_history: public global_history
@@ -83,6 +84,7 @@ class scatter_gather_history: public global_history
 		 */
 		void push_state(global_state_type global_state);
 		history_buffers *get_buffers(std::size_t node);
+		std::size_t local_node_id(std::size_t global_node_id);
 };
 
 

@@ -61,8 +61,9 @@ void integrator::dfun_eval(	unsigned long node,
 {
 	local_coupling_type l_coupling = local_coupling_type(this->histories.size());
 	for(std::size_t i=0; i < this->histories.size(); i++){
+		std::size_t local_node = this->histories[i]->local_node_id(node);
 		local_state_type lc = local_state_type(this->model->n_vars());
-		(*this->coupling)( this->connectivities[i][node], 
+		(*this->coupling)( this->connectivities[i][local_node], 
 						this->histories[i], 
 						lc,
 						time_offset);
