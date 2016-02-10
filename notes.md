@@ -43,7 +43,9 @@ integrator::step
   * [x] ~~prepsat uplne~~
   * [ ] IC regionalnich map
 * src/connectivity.h
-  * [ ] implementovat nacitani regionalnich map: zkonstruuje konektivitu mezi regiony a mapy uzel-region, nebo region-uzel
+  * [x] ~~implementovat nacitani regionalnich map: zkonstruuje konektivitu mezi regiony a mapy uzel-region, nebo region-uzel~~
+* tests/connectivity_tests.cc
+  * [ ] otestovat nacitani regionalni connectivity
 * tests/history_tests.cc
   * [ ] scatter-gather testy
 * tests/integrator_tests.cc
