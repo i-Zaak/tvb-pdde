@@ -137,7 +137,7 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 									std::vector< std::size_t >&nodes_region)
 {
 	std::size_t n_nodes, n_regions;
-	part_file >> n_nodes >> n_regions;
+	region_file >> n_nodes >> n_regions;
 	region_nodes.resize(n_regions);
 	nodes_region.resize(n_nodes);
 	connectivity.resize(n_regions);
@@ -145,14 +145,14 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 	// read the mapping
 	for (std::size_t i = 0; i < n_nodes; i++) {
 		std::size_t reg;
-		part_file >> reg;
+		region_file >> reg;
 		nodes_region[i] = reg;
 		region_nodes[reg].push_back(reg);
 	}
 
 	// read the connectivity
-	TODO
-	global_connectivity_type connectivity_from_mtx(std::string filename)
+	global_connectivity_type conn = connectivity_from_mtx(conn_file);
+	connectivity.swap(conn);
 
 	return n_regions; //what for?
 }

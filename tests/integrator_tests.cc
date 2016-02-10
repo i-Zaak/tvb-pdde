@@ -1,5 +1,6 @@
 #include "catch.hpp"
 #include "integrator.h"
+#include <iostream>
 
 //TODO refactor a lot of the initialization to constructors/configuration...
 //also document the computation ;)
@@ -88,7 +89,8 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 
 TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	// see sets_init.py for data generation
-	global_connectivity_type connectivity = connectivity_from_mtx("data/test_init.mtx");
+	std::ifstream conn_file("data/test_init.mtx");
+	global_connectivity_type connectivity = connectivity_from_mtx(conn_file);
 	global_connectivities_type connectivities = global_connectivities_type();
 	connectivities.push_back(connectivity);
 	REQUIRE(connectivity.size() == 20);
