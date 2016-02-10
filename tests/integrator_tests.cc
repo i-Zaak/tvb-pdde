@@ -22,7 +22,7 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	connections.push_back(conn);
 	connectivity[3] = connections; 
 	connectivities.push_back(connectivity); 
-	global_connectivity_type reg_connectivity = global_connectivity_type(); 
+	global_connectivity_type reg_connectivity = global_connectivity_type(n_nodes); 
 	connectivities.push_back(reg_connectivity); 
 
 

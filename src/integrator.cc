@@ -16,7 +16,7 @@ integrator::integrator(	population_model *model,
 	this->scheme_history = histories[0];
 	this->observer = observer;
 	this->dt = dt;
-	this->n_nodes = initial_conditions.size();
+	this->n_nodes = initial_conditions[0]->n_nodes();
 }
 
 void integrator::operator()(unsigned long n_steps)
