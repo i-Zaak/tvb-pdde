@@ -152,7 +152,7 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 
 	// read the connectivity
 	global_connectivity_type conn = connectivity_from_mtx(conn_file);
-	connectivity.swap(conn);
+	connectivity = conn;
 
 	return n_regions; //what for?
 }

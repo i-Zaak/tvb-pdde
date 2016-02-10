@@ -45,3 +45,31 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 	REQUIRE(send_node_ids[1].first == 1);
 	REQUIRE(send_node_ids[1].second.size() == 23);
 }
+
+TEST_CASE("Reading regional connectivity"){
+	global_connectivity_type connectivity;
+	std::vector< std::vector< std::size_t > > region_nodes;
+	std::vector< std::size_t >nodes_region;
+
+	std::ifstream reg_file("data/test_init.adj.part.4");
+	std::ifstream conn_file("data/test_region_4.mtx");
+	REQUIRE(reg_file.is_open());
+	REQUIRE(conn_file.is_open());
+
+	read_regional_mapping(	reg_file, 
+							conn_file, 
+							connectivity,
+							region_nodes, 
+							nodes_region);
+	REQUIRE(connectivity.size() == 4);
+	REQUIRE(connectivity[0].size() == 1);
+	REQUIRE(connectivity[1].size() == 1);
+	REQUIRE(connectivity[2].size() == 1);
+	REQUIRE(connectivity[3].size() == 1);
+	REQUIRE(region_nodes.size() == 4);
+	REQUIRE(nodes_region.size() == 20);
+
+	static const std::size_t arr[] = {0, 0, 0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 0, 0};
+	std::vector< std::size_t > expected_regions(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+	REQUIRE(expected_regions == nodes_region);
+}
