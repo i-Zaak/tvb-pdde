@@ -44,8 +44,16 @@ class integrator
 					const global_histories_type &initial_conditions,
 					solution_observer *observer,
 					double dt);
-		static global_histories_type constant_initial_conditions(
-				const global_connectivities_type &connectivities,
+		static global_history* constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const local_state_type &values,
+				history_factory* history,
+				population_model* model,
+				double dt);
+		static scatter_gather_history* constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const std::vector< std::vector< std::size_t > > &region_nodes,
+				const std::vector< std::size_t >&nodes_region,
 				const local_state_type &values,
 				history_factory* history,
 				population_model* model,

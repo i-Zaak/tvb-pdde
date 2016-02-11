@@ -23,16 +23,30 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	connections.push_back(conn);
 	connectivity[3] = connections; 
 	connectivities.push_back(connectivity); 
-	global_connectivity_type reg_connectivity = global_connectivity_type(n_nodes); 
-	connectivities.push_back(reg_connectivity); 
+
+	global_connectivity_type reg_connectivity = global_connectivity_type(2); 
+	connectivities.push_back(reg_connectivity);  // no global connections?
+	static const std::size_t arr[] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1};
+	std::vector< std::size_t > nodes_region(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+	std::vector< std::vector< std::size_t > > region_nodes(2);
+	for(std::size_t i = 0; i < 6; i++) {
+		region_nodes[0].push_back(i);
+	}
+	for(std::size_t i = 6; i < 13; i++) {
+		region_nodes[1].push_back(i);
+	}
 
 
 	linear_coupling *coupling = new linear_coupling();
-	
 	lint_history_factory* history = new lint_history_factory();
 	local_state_type values = local_state_type(model->n_vars(),1.6);
-	global_histories_type initial_conditions = integrator::constant_initial_conditions(
-			connectivities, values, history, model, dt ); 
+
+	global_histories_type initial_conditions = global_histories_type(2);
+	initial_conditions[0] = integrator::constant_initial_conditions(
+			connectivities[0], values, history, model, dt ); 
+	initial_conditions[1] = integrator::constant_initial_conditions(
+			connectivities[1], region_nodes, nodes_region, values, history, model, dt ); 
+
 	SECTION("generating initial conditions"){
 		for(unsigned long i = 0; i< n_nodes; i++){
 			if(i == 2){
@@ -90,17 +104,30 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	// see sets_init.py for data generation
 	std::ifstream conn_file("data/test_init.mtx");
+	std::ifstream region_file("data/test_init.4.reg");
+	std::ifstream reg_conn_file("data/test_region_4.mtx");
 	global_connectivity_type connectivity = connectivity_from_mtx(conn_file);
+	REQUIRE(connectivity.size() == 20);
+
+	global_connectivity_type reg_conn;
+	std::vector< std::vector< std::size_t > > region_nodes;
+	std::vector< std::size_t >nodes_region;
+	read_regional_mapping(region_file, reg_conn_file, reg_conn, region_nodes, nodes_region);
+	REQUIRE(reg_conn.size() == 4);
+
 	global_connectivities_type connectivities = global_connectivities_type();
 	connectivities.push_back(connectivity);
-	REQUIRE(connectivity.size() == 20);
+	connectivities.push_back(reg_conn);
 
 	lint_history_factory* history = new lint_history_factory();
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 	local_state_type values = local_state_type(model->n_vars(),42.0);
 	double dt=0.2;
-	global_histories_type initial_conditions = integrator::constant_initial_conditions(
-			connectivities,values, history, model, dt ); 
+	global_histories_type initial_conditions = global_histories_type(2);
+	initial_conditions[0] = integrator::constant_initial_conditions(
+			connectivities[0],values, history, model, dt ); 
+	initial_conditions[1] = integrator::constant_initial_conditions(
+			connectivities[1], region_nodes, nodes_region, values, history, model, dt ); 
 	static const int arr[] = {3, 4, 5, 2, 6, 3, 6, 6, 4, 5, 6, 6, 6, 6, 4, 5, 4, 5, 4, 4}; 
 	std::vector<int> expected_buflengths(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 

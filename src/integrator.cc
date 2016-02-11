@@ -123,45 +123,69 @@ double euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
 	return this->dt; //eqidistant timestepping here
 }
 
-global_histories_type integrator::constant_initial_conditions(
-		const global_connectivities_type &connectivities,
-		//unsigned long n_nodes,
+std::vector< history_buffers* > buffers_from_connectivity(
+		const global_connectivity_type &connectivity,
 		const local_state_type &values,
-		history_factory* history,
-		population_model* model,
+		history_factory *history,
+		population_model *model,
+		double dt){
+	std::size_t n_nodes = connectivity.size();
+
+	std::vector< history_buffers* > buffers = std::vector< history_buffers* >(n_nodes);
+	
+	// determine buffer lengths
+	std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
+	for(std::size_t j=0; j < connectivity.size(); j++){
+		for(std::size_t k=0; k< connectivity[j].size(); k++)	{
+			connection conn = connectivity[j][k];
+			if ( max_delays[conn.from] < conn.delay) {
+				max_delays[conn.from] = conn.delay;
+			}
+		}
+	}
+
+	// create buffers and fill with constant state
+	for(std::size_t j=0; j < buffers.size(); j++){
+		unsigned long length = ceil(max_delays[j] / dt)+1;
+		buffers[j] = history->create_history(length, dt, model->n_vars()); //TODO refactor dt and nvars to consturctor
+		for(unsigned long k = 0; k < length; k++) {
+			buffers[j]->add_state(values);
+		}
+	}
+	return buffers;
+}
+//global_histories_type integrator::constant_initial_conditions(
+//		const global_connectivities_type &connectivities,
+//		//unsigned long n_nodes,
+//		const local_state_type &values,
+//		history_factory* history,
+//		population_model* model,
+//		double dt)
+global_history* integrator::constant_initial_conditions(
+		const global_connectivity_type &connectivity,
+		const local_state_type &values,
+		history_factory *history,
+		population_model *model,
 		double dt)
 {
-	global_histories_type initial_conditions = global_histories_type();
-	if(connectivities.size() == 0) return initial_conditions;
+	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
+	global_history *ghist = new global_history(buffers);
 
+	return ghist;
+}
 
-	for (std::size_t i = 0; i < connectivities.size(); i++) {
-		std::size_t n_nodes = connectivities[i].size();
+scatter_gather_history* integrator::constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const std::vector< std::vector< std::size_t > > &region_nodes,
+				const std::vector< std::size_t >&nodes_region,
+				const local_state_type &values,
+				history_factory *history,
+				population_model *model,
+				double dt)
+{
+	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
 
-		std::vector< history_buffers* > buffers = std::vector< history_buffers* >(n_nodes);
-		
-		// determine buffer lengths
-		std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
-		for(std::size_t j=0; j < connectivities[i].size(); j++){
-			for(std::size_t k=0; k< connectivities[i][j].size(); k++)	{
-				connection conn = connectivities[i][j][k];
-				if ( max_delays[conn.from] < conn.delay) {
-					max_delays[conn.from] = conn.delay;
-				}
-			}
-		}
-
-		// create buffers and fill with constant state
-		for(std::size_t j=0; j < buffers.size(); j++){
-			unsigned long length = ceil(max_delays[j] / dt)+1;
-			buffers[j] = history->create_history(length, dt, model->n_vars());
-			for(unsigned long k = 0; k < length; k++) {
-				buffers[j]->add_state(values);
-			}
-		}
-		global_history *history = new global_history(buffers);
-		initial_conditions.push_back(history);
-	}
-	return initial_conditions;
+	scatter_gather_history *ghist = new scatter_gather_history(buffers, region_nodes, nodes_region);
+	return ghist;
 }
 

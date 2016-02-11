@@ -19,8 +19,8 @@ typedef std::vector< std::vector<double> > global_state_type;
 typedef std::vector< local_state_type > local_coupling_type;
 
 struct connection;
-// list of connectivities
-typedef std::vector< std::vector< std::vector< connection > > >global_connectivities_type; 
+// list of connectivities, TODO refactor to classs together with region-node id mapping 
+typedef std::vector< std::vector< std::vector< connection > > >global_connectivities_type;
 // connectivity pattern between populations: to x from 
 typedef std::vector< std::vector< connection > > global_connectivity_type; 
 // connectivity pattern for single population 
