@@ -39,17 +39,18 @@ integrator::step
   * [x] ~~vyresit vazbu mezi `coupling`, `connectivity`, `history` a iteraci pres uzly~~
 * ~~src/model.cc:48 (`generic_2d_oscillator::operator()`)~~
   * [x] ~~pridat c_1 pro globalni konektivitu~~
+* ~~src/connectivity.h~~
+  * [x] ~~implementovat nacitani regionalnich map: zkonstruuje konektivitu mezi regiony a mapy uzel-region, nebo region-uzel~~
+* ~~tests/connectivity_tests.cc~~
+  * [x] ~~otestovat nacitani regionalni connectivity~~
 * src/integrator.cc:122 (`integrator::constant_initial_conditions`)
   * [x] ~~prepsat uplne~~
   * [ ] IC regionalnich map
-* src/connectivity.h
-  * [x] ~~implementovat nacitani regionalnich map: zkonstruuje konektivitu mezi regiony a mapy uzel-region, nebo region-uzel~~
-* tests/connectivity_tests.cc
-  * [ ] otestovat nacitani regionalni connectivity
 * tests/history_tests.cc
   * [ ] scatter-gather testy
 * tests/integrator_tests.cc
-  * [ ] vytvorit testovaci data pro regionalni coupling
+  * [x] ~~vytvorit testovaci data pro regionalni coupling~~
   * [ ] scatter-gather connectivity testy
 * src/seq_bench_regional.cc
   * [ ] napsat :)
+* MPI integrator
