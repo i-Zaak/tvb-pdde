@@ -56,7 +56,7 @@ integrator::step
   * [x] ~~IC regionalnich map~~
   * [x] ~~opravit volani tests/integrator_tests.cc:34~~
   * [x] ~~volani v tests/integrator_tests.cc:102~~
-  * [ ] volani v src/seq_bench.cc:33
+  * [x] ~~volani v src/seq_bench.cc:33~~
   * [ ] volani v src/mpi_bench.cc:74
 * src/seq_bench_regional.cc
   * [ ] napsat :)
