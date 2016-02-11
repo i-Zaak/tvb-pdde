@@ -147,7 +147,7 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 		std::size_t reg;
 		region_file >> reg;
 		nodes_region[i] = reg;
-		region_nodes[reg].push_back(reg);
+		region_nodes[reg].push_back(i);
 	}
 
 	// read the connectivity

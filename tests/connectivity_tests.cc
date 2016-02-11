@@ -51,7 +51,7 @@ TEST_CASE("Reading regional connectivity"){
 	std::vector< std::vector< std::size_t > > region_nodes;
 	std::vector< std::size_t >nodes_region;
 
-	std::ifstream reg_file("data/test_init.adj.part.4");
+	std::ifstream reg_file("data/test_init.4.reg");
 	std::ifstream conn_file("data/test_region_4.mtx");
 	REQUIRE(reg_file.is_open());
 	REQUIRE(conn_file.is_open());
@@ -72,4 +72,8 @@ TEST_CASE("Reading regional connectivity"){
 	static const std::size_t arr[] = {0, 0, 0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 3, 3, 3, 3, 3, 0, 0};
 	std::vector< std::size_t > expected_regions(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 	REQUIRE(expected_regions == nodes_region);
+
+	static const std::size_t arr1[] = {3,4,5,6,7};
+	std::vector< std::size_t > expected_nodes(arr1, arr1 + sizeof(arr1) / sizeof(arr1[0]) );
+	REQUIRE(expected_nodes == region_nodes[2]);
 }
