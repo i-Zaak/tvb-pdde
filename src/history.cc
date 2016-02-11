@@ -130,7 +130,7 @@ void scatter_gather_history::push_state(global_state_type state)
 		unsigned int ndim = state[0].size();
 		local_state_type mean=local_state_type(ndim,0.0);
 		for(std::size_t j=0; j < regsize; j++){
-			for (unsigned int dim = 0; i < ndim; dim++) {
+			for (unsigned int dim = 0; dim < ndim; dim++) {
 				mean[dim] += state[ this->region_nodes[i][j]][dim] / double(regsize);
 			}
 		}
