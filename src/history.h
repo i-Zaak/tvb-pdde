@@ -90,5 +90,11 @@ class scatter_gather_history: public global_history
 		std::size_t n_nodes(){return this->nodes_region.size();};
 };
 
+class empty_history: public global_history
+{
+	public:
+		empty_history()
+		void push_state(global_state_type global_state);
+}
 
 #endif

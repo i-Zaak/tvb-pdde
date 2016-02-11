@@ -45,16 +45,18 @@ integrator::step
   * [x] ~~otestovat nacitani regionalni connectivity~~
 * ~~tests/history_tests.cc~~
   * [x] ~~scatter-gather testy~~
+* ~~tests/integrator_tests.cc~~
+  * [x] ~~vytvorit testovaci data pro regionalni coupling~~
+  * [x] ~~integrace se scatter-gather connectivitou~~
+* src/history.cc
+  * [ ] empty history (pro modely explicitne ocekavajici vice historii)
 * src/integrator.cc:122 (`integrator::constant_initial_conditions`)
   * [x] ~~prepsat uplne~~
   * [x] ~~IC regionalnich map~~
-  * [ ] opravit volani tests/integrator_tests.cc:34
-  * [ ] volani v tests/integrator_tests.cc:102
+  * [x] ~~opravit volani tests/integrator_tests.cc:34~~
+  * [x] ~~volani v tests/integrator_tests.cc:102~~
   * [ ] volani v src/seq_bench.cc:33
   * [ ] volani v src/mpi_bench.cc:74
-* tests/integrator_tests.cc
-  * [x] ~~vytvorit testovaci data pro regionalni coupling~~
-  * [ ] integrace se scatter-gather connectivitou
 * src/seq_bench_regional.cc
   * [ ] napsat :)
 * MPI integrator
