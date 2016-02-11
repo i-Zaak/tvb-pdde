@@ -149,3 +149,11 @@ std::size_t scatter_gather_history::local_node_id(std::size_t global_node_id)
 	return this->nodes_region[global_node_id];
 }
 
+empty_history::empty_history(unsigned long n_vars):global_history()
+{
+	lint_history *buffs =new lint_history(1,0.1,n_vars);
+	local_state_type state = local_state_type(n_vars,0.0);
+	buffs->add_state(state);
+	this->history = std::vector< history_buffers* >();
+	this->history.push_back(buffs);
+}

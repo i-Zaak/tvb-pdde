@@ -55,6 +55,7 @@ class global_history
 {
 	protected:
 		std::vector< history_buffers* > history; 
+		global_history(){};
 	public:
 		global_history(std::vector< history_buffers* > history):
 			history(history){};
@@ -93,8 +94,11 @@ class scatter_gather_history: public global_history
 class empty_history: public global_history
 {
 	public:
-		empty_history()
-		void push_state(global_state_type global_state);
-}
+		empty_history(unsigned long n_vars);
+		void push_state(global_state_type global_state){return;};
+		history_buffers *get_buffers(std::size_t node){return this->history[0];};
+		std::size_t local_node_id(std::size_t global_node_id){return global_node_id;};
+		std::size_t n_nodes(){return 1;};
+};
 
 #endif
