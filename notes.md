@@ -43,11 +43,11 @@ integrator::step
   * [x] ~~implementovat nacitani regionalnich map: zkonstruuje konektivitu mezi regiony a mapy uzel-region, nebo region-uzel~~
 * ~~tests/connectivity_tests.cc~~
   * [x] ~~otestovat nacitani regionalni connectivity~~
+* ~~tests/history_tests.cc~~
+  * [x] ~~scatter-gather testy~~
 * src/integrator.cc:122 (`integrator::constant_initial_conditions`)
   * [x] ~~prepsat uplne~~
   * [ ] IC regionalnich map
-* tests/history_tests.cc
-  * [ ] scatter-gather testy
 * tests/integrator_tests.cc
   * [x] ~~vytvorit testovaci data pro regionalni coupling~~
   * [ ] scatter-gather connectivity testy
