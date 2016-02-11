@@ -97,7 +97,7 @@ class empty_history: public global_history
 		empty_history(unsigned long n_vars);
 		void push_state(global_state_type global_state){return;};
 		history_buffers *get_buffers(std::size_t node){return this->history[0];};
-		std::size_t local_node_id(std::size_t global_node_id){return global_node_id;};
+		std::size_t local_node_id(std::size_t global_node_id){return 0;};
 		std::size_t n_nodes(){return 1;};
 };
 
