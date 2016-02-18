@@ -42,9 +42,9 @@ TEST_CASE("Integration time stepping", "[euler euler-maruyama]")
 	local_state_type values = local_state_type(model->n_vars(),1.6);
 
 	global_histories_type initial_conditions = global_histories_type(2);
-	initial_conditions[0] = integrator::constant_initial_conditions(
+	initial_conditions[0] = global_history::constant_initial_conditions(
 			connectivities[0], values, history, model, dt ); 
-	initial_conditions[1] = integrator::constant_initial_conditions(
+	initial_conditions[1] = scatter_gather_history::constant_initial_conditions(
 			connectivities[1], region_nodes, nodes_region, values, history, model, dt ); 
 
 	SECTION("generating initial conditions"){
@@ -124,9 +124,9 @@ TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	local_state_type values = local_state_type(model->n_vars(),42.0);
 	double dt=0.2;
 	global_histories_type initial_conditions = global_histories_type(2);
-	initial_conditions[0] = integrator::constant_initial_conditions(
+	initial_conditions[0] = global_history::constant_initial_conditions(
 			connectivities[0],values, history, model, dt ); 
-	initial_conditions[1] = integrator::constant_initial_conditions(
+	initial_conditions[1] = scatter_gather_history::constant_initial_conditions(
 			connectivities[1], region_nodes, nodes_region, values, history, model, dt ); 
 	static const int arr[] = {3, 4, 5, 2, 6, 3, 6, 6, 4, 5, 6, 6, 6, 6, 4, 5, 4, 5, 4, 4}; 
 	std::vector<int> expected_buflengths(arr, arr + sizeof(arr) / sizeof(arr[0]) );

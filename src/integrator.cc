@@ -33,7 +33,7 @@ void integrator::step()
 
 	// compute new state phi(t_{n+1})
 	#pragma omp parallel for firstprivate(local_state)
-	for(unsigned long node=0; node< this->n_nodes; node++){
+	for(unsigned long node=0; node< this->n_nodes; node++){ //TODO move the loop to scheme
 		double time; //of the next step
 		time = scheme(node, local_state); 
 		global_state[node] = local_state;
@@ -123,69 +123,4 @@ double euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
 	return this->dt; //eqidistant timestepping here
 }
 
-std::vector< history_buffers* > buffers_from_connectivity(
-		const global_connectivity_type &connectivity,
-		const local_state_type &values,
-		history_factory *history,
-		population_model *model,
-		double dt){
-	std::size_t n_nodes = connectivity.size();
-
-	std::vector< history_buffers* > buffers = std::vector< history_buffers* >(n_nodes);
-	
-	// determine buffer lengths
-	std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
-	for(std::size_t j=0; j < connectivity.size(); j++){
-		for(std::size_t k=0; k< connectivity[j].size(); k++)	{
-			connection conn = connectivity[j][k];
-			if ( max_delays[conn.from] < conn.delay) {
-				max_delays[conn.from] = conn.delay;
-			}
-		}
-	}
-
-	// create buffers and fill with constant state
-	for(std::size_t j=0; j < buffers.size(); j++){
-		unsigned long length = ceil(max_delays[j] / dt)+1;
-		buffers[j] = history->create_history(length, dt, model->n_vars()); //TODO refactor dt and nvars to consturctor
-		for(unsigned long k = 0; k < length; k++) {
-			buffers[j]->add_state(values);
-		}
-	}
-	return buffers;
-}
-//global_histories_type integrator::constant_initial_conditions(
-//		const global_connectivities_type &connectivities,
-//		//unsigned long n_nodes,
-//		const local_state_type &values,
-//		history_factory* history,
-//		population_model* model,
-//		double dt)
-global_history* integrator::constant_initial_conditions(
-		const global_connectivity_type &connectivity,
-		const local_state_type &values,
-		history_factory *history,
-		population_model *model,
-		double dt)
-{
-	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
-	global_history *ghist = new global_history(buffers);
-
-	return ghist;
-}
-
-scatter_gather_history* integrator::constant_initial_conditions(
-				const global_connectivity_type &connectivity,
-				const std::vector< std::vector< std::size_t > > &region_nodes,
-				const std::vector< std::size_t >&nodes_region,
-				const local_state_type &values,
-				history_factory *history,
-				population_model *model,
-				double dt)
-{
-	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
-
-	scatter_gather_history *ghist = new scatter_gather_history(buffers, region_nodes, nodes_region);
-	return ghist;
-}
 
