@@ -23,13 +23,15 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 	std::ifstream conn_file("data/conn500.adj");
 	REQUIRE(part_file.is_open());
 	REQUIRE(conn_file.is_open());
-	connectivity_from_partition(	part_file, 
-									conn_file,
-									connectivity, 
-									recv_node_ids, 
-									send_node_ids );
+	unsigned long n_local_nodes = connectivity_from_partition(	
+			part_file, 
+			conn_file,
+			connectivity, 
+			recv_node_ids, 
+			send_node_ids );
 
-	REQUIRE(connectivity.size() == 144);
+	REQUIRE(n_local_nodes == 144);
+	REQUIRE(connectivity.size() == 193); //local + recv nodes
 	REQUIRE(connectivity[143].size() == 17);
 	REQUIRE(connectivity[143][16].delay == Approx(6.730340));
 	REQUIRE(connectivity[143][16].from == 124);
@@ -44,6 +46,8 @@ TEST_CASE("Reading distributed connectivity from .adj.n.m file", "[connectivity 
 	REQUIRE(recv_node_ids[1].second.size() == 24);
 	REQUIRE(send_node_ids[1].first == 1);
 	REQUIRE(send_node_ids[1].second.size() == 23);
+	REQUIRE(recv_node_ids[2].first == 2);
+	REQUIRE(recv_node_ids[2].second.size() == 22);
 }
 
 TEST_CASE("Reading regional connectivity"){
