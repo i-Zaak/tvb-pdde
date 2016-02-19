@@ -64,7 +64,7 @@ void distributed_global_history::push_state(global_state_type global_state)
 		unsigned long n_send_nodes = this->send_ids[n_id].second.size();
 		for(unsigned long j=0; j < n_send_nodes; j++){
 			for (unsigned int dim = 0; dim < this->n_vars; dim++) {
-				this->send_buffers[n_id][j][dim] = global_state[ send_ids[n_id].first ][dim];
+				this->send_buffers[n_id][j][dim] = global_state[ send_ids[n_id].second[j] ][dim];
 			}
 		}
 		unsigned long buf_length = n_send_nodes * this->n_vars;
@@ -110,19 +110,19 @@ void distributed_scatter_gather_history::push_state(global_state_type global_sta
 	global_state_type region_state = global_state_type(this->region_nodes.size());
 	for(std::size_t i=0; i < this->region_nodes.size(); i++){
 		std::size_t regsize = this->region_nodes[i].size();
-		if(regsize == 0) continue;
+		assert(regsize >0);
 
 		//TODO omp parallel sum
-		unsigned int ndim = region_state[0].size();
+		unsigned int ndim = global_state[0].size();
 		local_state_type mean=local_state_type(ndim,0.0);
 		for(std::size_t j=0; j < regsize; j++){
 			for (unsigned int dim = 0; dim < ndim; dim++) {
-				mean[dim] += region_state[ this->region_nodes[i][j]][dim] / double(regsize);
+				mean[dim] += global_state[ this->region_nodes[i][j]][dim] / double(regsize);
 			}
 		}
 		region_state[i] = mean;
 	}
-	distributed_scatter_gather_history::push_state(region_state);
+	distributed_global_history::push_state(region_state);
 	//
 	// TODO: let go only if we have received the states for next step (not necessarily from this step)
 	

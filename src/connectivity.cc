@@ -125,7 +125,8 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 			connectivity[node_it->second] = lconn;
 		}
 	}
-	return n_buffered_nodes;
+	connectivity.resize(n_buffered_nodes);
+	return n_part_nodes;
 }
 
 

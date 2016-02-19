@@ -16,7 +16,7 @@ TEST_CASE("Distributed initial conditions from partitioned connectivity" "[mpi h
 	CHECK(conn_file.is_open());
 
 	//test_init.adj.part.4.[0-3]
-	char part_filename[25];
+	char part_filename[40];
 	sprintf(part_filename, "data/test_init.adj.part.4.%d", task_id);
 
 	std::ifstream part_file(part_filename);
@@ -111,15 +111,17 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 	connectivities.push_back(connectivity);
 	//regions
 	global_connectivity_type reg_connectivity = global_connectivity_type(1); //one region per process
+	neighbor_map_type reg_recv_node_ids; 
+	neighbor_map_type reg_send_node_ids;
 	if (task_id == 2) {
 		std::vector<unsigned long> send_ids;
 		send_ids.push_back(0);
-		send_node_ids.push_back(std::make_pair(3, send_ids));
+		reg_send_node_ids.push_back(std::make_pair(3, send_ids));
 	} else if (task_id == 3) {
 		reg_connectivity.resize(2); // one more buffer for remote node
 		std::vector<unsigned long> recv_ids;
 		recv_ids.push_back(1);
-		recv_node_ids.push_back(std::make_pair(2,recv_ids));
+		reg_recv_node_ids.push_back(std::make_pair(2,recv_ids));
 		local_connectivity_type connections = local_connectivity_type();
 		connection conn = {
 			1, // from
@@ -147,7 +149,7 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 	initial_conditions[0] = distributed_global_history::constant_initial_conditions(
 			connectivities[0], values, history, model, recv_node_ids, send_node_ids, dt ); 
 	initial_conditions[1] = distributed_scatter_gather_history::constant_initial_conditions(
-			connectivities[1], region_nodes, nodes_region, values, history, model, recv_node_ids, send_node_ids, dt ); 
+			connectivities[1], region_nodes, nodes_region, values, history, model, reg_recv_node_ids, reg_send_node_ids, dt ); 
 
 	SECTION("generating initial conditions"){
 		for(unsigned long i = 0; i< n_buffered_nodes; i++){
