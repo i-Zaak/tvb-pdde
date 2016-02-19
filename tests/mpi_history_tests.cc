@@ -180,11 +180,12 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 		integrator(5);
 		int ref_id = 1;
 		INFO("process: " << task_id);
-		CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) ); //smokes? 
-		CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) ); //smokes?
-		CHECK(observer->get_solution()[ref_id][4].second[0] ==Approx(1.7020089515) ); //smokes?
-		CHECK(observer->get_solution()[ref_id][4].second[1] ==Approx(1.2003363806) ); //smokes?
-
+		if(task_id == 0){
+			CHECK(observer->get_solution()[ref_id][0].second[0] ==Approx(1.620736) ); //smokes? 
+			CHECK(observer->get_solution()[ref_id][0].second[1] ==Approx(1.5216) ); //smokes?
+			CHECK(observer->get_solution()[ref_id][4].second[0] ==Approx(1.7020089515) ); //smokes?
+			CHECK(observer->get_solution()[ref_id][4].second[1] ==Approx(1.2029269766) ); //smokes?
+		}
 		for(unsigned long i = 0; i< n_local_nodes; i++){
 			INFO("process: " << task_id);
 			INFO("node: " << i);
@@ -209,8 +210,8 @@ TEST_CASE("Parallel integration time stepping", "[mpi euler euler-maruyama]")
 				noise_generator, dt);
 
 		integrator(5);
-		if(task_id != 1){
-			CHECK(observer->get_solution()[0][0].second[0] ==Approx(1.6265733103) );
+		if(task_id == 1){
+			CHECK(observer->get_solution()[0][0].second[0] ==Approx(1.6304133103) );
 			CHECK(observer->get_solution()[0][0].second[1] ==Approx(1.522165) );
 		}
 		// TODO: some more sensible test (requires globally synchronized pseudorandom variables. 
