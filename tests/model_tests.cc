@@ -27,7 +27,7 @@ TEST_CASE( "Model evaluation", "[generic 2d oscillator]"){
 	coupling.push_back(phi); //regional
 
 	g2d(phi,coupling,df,dg); // coupled with one identical oscillator
-	REQUIRE( df[0] == Approx(0.05740912) );
+	REQUIRE( df[0] == Approx(0.0764634052) );
 	REQUIRE( df[1] == Approx(-0.23453734) );
 	REQUIRE( dg[0] == Approx(0.001) ); //constant function
 	REQUIRE( dg[1] == Approx(0.001) );
