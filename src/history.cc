@@ -120,7 +120,7 @@ history_buffers* global_history::get_buffers(std::size_t node) const
 	return this->history[node];
 }
 
-static std::vector< history_buffers* > buffers_from_connectivity(
+std::vector< history_buffers* > buffers_from_connectivity(
 		const global_connectivity_type &connectivity,
 		const local_state_type &values,
 		history_factory *history,

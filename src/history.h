@@ -53,7 +53,7 @@ class lint_history_factory: public history_factory
 		lint_history* create_history(unsigned long length, double dt, unsigned long n_vars);
 };
 
-static std::vector< history_buffers* > buffers_from_connectivity(
+std::vector< history_buffers* > buffers_from_connectivity(
 		const global_connectivity_type &connectivity,
 		const local_state_type &values,
 		history_factory *history,

@@ -51,16 +51,27 @@ integrator::step
   * [x] ~~integrace se scatter-gather connectivitou~~
 * ~~src/history.cc~~
   * [x] ~~empty history (pro modely explicitne ocekavajici vice historii)~~
-* src/integrator.cc:122 (`integrator::constant_initial_conditions`)
+* ~~src/integrator.cc:122 (`integrator::constant_initial_conditions`)~~
   * [x] ~~prepsat uplne~~
   * [x] ~~IC regionalnich map~~
   * [x] ~~opravit volani tests/integrator_tests.cc:34~~
   * [x] ~~volani v tests/integrator_tests.cc:102~~
   * [x] ~~volani v src/seq_bench.cc:33~~
-  * [ ] volani v src/mpi_bench.cc:74
-* src/seq_bench_regional.cc
-  * [ ] napsat :)
+* ~~initial conditions~~
+  * [x] ~~refaktorovat do historie~~
+  * [x] ~~otestovat refaktorovanou global history~~
+* MPI integrator -> MPI history
+  * [x] ~~upravit Makefile~~
+  * [x] ~~implementace distribuovane historie~~
+  * [x] ~~upravit test~~
+  * [ ] distribuovana regionalni historie
+  * [ ] dopsat do tests/mpi_history_tests.cc:116
 * MPI integrator
+  * [ ] volani v src/mpi_bench.cc:74
 * MPI integrator testy
   * [ ] opravit IC tests/mpi_integrator_tests.cc:38
   * [ ] opravit IC tests/mpi_integrator_tests.cc:112
+* src/seq_bench_regional.cc
+  * [ ] napsat :)
+* src/mpi_bench_regional.cc
+  * [ ] napsat :)
