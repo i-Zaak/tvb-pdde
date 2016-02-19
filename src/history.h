@@ -6,6 +6,8 @@
 #include <iostream>
 #include <boost/math/special_functions/hermite.hpp>
 #include "common.h"
+#include "model.h"
+#include "connectivity.h"
 
 
 /**
@@ -49,6 +51,77 @@ class lint_history_factory: public history_factory
 {
 	public:
 		lint_history* create_history(unsigned long length, double dt, unsigned long n_vars);
+};
+
+std::vector< history_buffers* > buffers_from_connectivity(
+		const global_connectivity_type &connectivity,
+		const local_state_type &values,
+		history_factory *history,
+		population_model *model,
+		double dt);
+
+class global_history
+{
+	protected:
+		std::vector< history_buffers* > history; 
+		global_history(){};
+	public:
+		global_history(std::vector< history_buffers* > history):
+			history(history){};
+		virtual void push_state(global_state_type global_state);
+		virtual history_buffers *get_buffers(std::size_t node) const;
+		virtual std::size_t local_node_id(std::size_t global_node_id){return global_node_id;};
+		// number of all nodes in the system
+		virtual std::size_t n_nodes(){return this->history.size();};
+		static global_history* constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const local_state_type &values,
+				history_factory *history,
+				population_model *model,
+				double dt);
+};
+
+class scatter_gather_history: public global_history
+{
+	private:
+		std::vector< std::vector< std::size_t > > region_nodes;
+		std::vector< std::size_t > nodes_region;
+	public:
+		scatter_gather_history(
+				std::vector< history_buffers* > history, 
+				std::vector< std::vector< std::size_t > > region_nodes,
+				std::vector< std::size_t > nodes_region):
+			global_history(history),
+			region_nodes(region_nodes),
+			nodes_region(nodes_region){};
+		/**
+		 * node is global index node, the values are aggregated within region
+		 * and pushed to single bufer shared for all nodes in region.
+		 */
+		void push_state(global_state_type global_state);
+		history_buffers *get_buffers(std::size_t node);
+		std::size_t local_node_id(std::size_t global_node_id);
+		std::size_t n_nodes(){return this->nodes_region.size();};
+		static scatter_gather_history* constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const std::vector< std::vector< std::size_t > > &region_nodes,
+				const std::vector< std::size_t >&nodes_region,
+				const local_state_type &values,
+				history_factory *history,
+				population_model *model,
+				double dt
+				);
+};
+
+
+class empty_history: public global_history
+{
+	public:
+		empty_history(unsigned long n_vars);
+		void push_state(global_state_type global_state){return;};
+		history_buffers *get_buffers(std::size_t node){return this->history[0];};
+		std::size_t local_node_id(std::size_t global_node_id){return 0;};
+		std::size_t n_nodes(){return 1;};
 };
 
 #endif

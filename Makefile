@@ -17,14 +17,14 @@ ifeq ($(INSTRUMENT),1)
 	MPI=1
 	PROFILE=1
 else
-	MPICC = mpic++
+	MPICC = gccfilter -c mpic++
 endif
 
 ifeq ($(MPI),1)
 	CC = $(MPICC)
 all:bin/tests bin/mpi_tests bin/seq_bench bin/mpi_bench
 else
-	CC = g++
+	CC = gccfilter -c g++
 all:bin/tests bin/seq_bench 
 endif
 
@@ -65,7 +65,7 @@ TEST_SOURCES = tests/main.cc \
 TEST_OBJS = $(TEST_SOURCES:.cc=.o)
 
 MPI_TEST_SOURCES = tests/mpi_main.cc \
-				   tests/mpi_integrator_tests.cc
+				   tests/mpi_history_tests.cc
 MPI_TEST_OBJS = $(MPI_TEST_SOURCES:.cc=.o)
 
 SOURCES = src/coupling.cc \
@@ -77,7 +77,7 @@ SOURCES = src/coupling.cc \
 		  src/random.cc
 OBJS = $(SOURCES:.cc=.o)
 
-MPI_SOURCES = src/mpi_integrator.cc
+MPI_SOURCES = src/mpi_history.cc
 MPI_OBJS = $(MPI_SOURCES:.cc=.o)
 
 TOOL_SOURCES = src/seq_bench.cc 

@@ -3,18 +3,20 @@
 
 integrator::integrator(	population_model *model,
 						population_coupling *coupling,
-						const global_connectivity_type &connectivity,
-						const global_history_type &initial_conditions,
+						const std::vector<global_connectivity_type> &connectivities,
+						const std::vector<global_history*> &initial_conditions,
 					solution_observer *observer,
 						double dt)
 {
 	this->model = model;
 	this->coupling = coupling;
-	this->connectivity = connectivity;
-	this->history = initial_conditions;
+	this->connectivities = connectivities;
+	this->histories = initial_conditions;
+	assert(initial_conditions.size()>0);
+	this->scheme_history = histories[0];
 	this->observer = observer;
 	this->dt = dt;
-	this->n_nodes = initial_conditions.size();
+	this->n_nodes = initial_conditions[0]->n_nodes();
 }
 
 void integrator::operator()(unsigned long n_steps)
@@ -31,7 +33,7 @@ void integrator::step()
 
 	// compute new state phi(t_{n+1})
 	#pragma omp parallel for firstprivate(local_state)
-	for(unsigned long node=0; node< this->n_nodes; node++){
+	for(unsigned long node=0; node< this->n_nodes; node++){ //TODO move the loop to scheme
 		double time; //of the next step
 		time = scheme(node, local_state); 
 		global_state[node] = local_state;
@@ -41,10 +43,8 @@ void integrator::step()
 	}
 
 	// update history
-	#pragma omp parallel for
-	for(unsigned long node=0; node< this->n_nodes; node++){
-		// this can be run only after all nodes are done
-		this->history[node]->add_state(global_state[node]);
+	for(std::size_t i=0; i < this->histories.size();i++){
+		this->histories[i]->push_state(global_state);
 	}
 	
 }
@@ -59,12 +59,16 @@ void integrator::dfun_eval(	unsigned long node,
 							local_state_type &df,
 							local_state_type &dg)
 {
-	local_coupling_type l_coupling = local_coupling_type(this->model->n_vars());
-	(*this->coupling)( this->connectivity[node], 
-					this->history, 
-					l_coupling,
-					time_offset);
-
+	local_coupling_type l_coupling = local_coupling_type(this->histories.size());
+	for(std::size_t i=0; i < this->histories.size(); i++){
+		std::size_t local_node = this->histories[i]->local_node_id(node);
+		local_state_type lc = local_state_type(this->model->n_vars());
+		(*this->coupling)( this->connectivities[i][local_node], 
+						this->histories[i], 
+						lc,
+						time_offset);
+		l_coupling[i] = lc;
+	}
 	(*this->model)(	phi,
 					l_coupling,
 					df,
@@ -73,7 +77,7 @@ void integrator::dfun_eval(	unsigned long node,
 
 double euler::scheme(unsigned long node, local_state_type &new_state)
 {
-	local_state_type phi = this->history[node]->get_values_at(0); // current 
+	local_state_type phi = this->scheme_history->get_buffers(node)->get_values_at(0); // current 
 	local_state_type df = local_state_type(this->model->n_vars());
 	local_state_type dg = local_state_type(this->model->n_vars()); // this gets ignored...
 	
@@ -87,12 +91,12 @@ double euler::scheme(unsigned long node, local_state_type &new_state)
 
 euler_maruyama::euler_maruyama(		population_model *model,
 									population_coupling *coupling,
-									const global_connectivity_type &connectivity,
-									const global_history_type &initial_conditions,
+									const std::vector<global_connectivity_type> &connectivities,
+									const std::vector<global_history*> &initial_conditions,
 									solution_observer *observer,
 									rng *noise_generator,
 									double dt
-								):integrator( 	model, coupling, connectivity, 
+								):integrator( 	model, coupling, connectivities, 
 												initial_conditions, observer,
 												dt
 								)
@@ -103,7 +107,7 @@ euler_maruyama::euler_maruyama(		population_model *model,
 
 double euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
 {
-	local_state_type phi = this->history[node]->get_values_at(0); // current 
+	local_state_type phi = this->scheme_history->get_buffers(node)->get_values_at(0); // current 
 	local_state_type df = local_state_type(this->model->n_vars());
 	local_state_type dg = local_state_type(this->model->n_vars()); 
 
@@ -119,37 +123,4 @@ double euler_maruyama::scheme(unsigned long node, local_state_type &new_state)
 	return this->dt; //eqidistant timestepping here
 }
 
-global_history_type integrator::constant_initial_conditions(
-		const global_connectivity_type &connectivity,
-		unsigned long n_nodes,
-		const local_state_type &values,
-		history_factory* history,
-		population_model* model,
-		double dt)
-{
-
-	global_history_type initial_conditions = global_history_type(n_nodes);
-	
-	// determine buffer lengths
-	std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
-	for(global_connectivity_type::size_type i=0; i < connectivity.size(); i++){
-		for(local_connectivity_type::size_type j=0; j< connectivity[i].size(); j++)	{
-			connection conn = connectivity[i][j];
-			if ( max_delays[conn.from] < conn.delay) {
-				max_delays[conn.from] = conn.delay;
-			}
-		}
-	}
-
-	// create buffers and fill with constant state
-	for(global_history_type::size_type i=0; i < initial_conditions.size(); i++){
-		unsigned long length = ceil(max_delays[i] / dt)+1;
-		initial_conditions[i] = history->create_history(length, dt, model->n_vars());
-		for(unsigned long j = 0; j < length; j++) {
-			initial_conditions[i]->add_state(values);
-		}
-	}
-
-	return initial_conditions;
-}
 

@@ -36,18 +36,23 @@ void generic_2d_oscillator::operator()(	const local_state_type &phi,
 										local_state_type &df,
 										local_state_type &dg)
 {
-
 	assert( phi.size() == df.size() && 
 			phi.size() == dg.size() && 
-			phi.size() == coupling.size() && 
-			phi.size() == 2); 
+			phi.size() == 2 &&
+			coupling.size() == 2); // :(
+
+	// TODO DEBUG macro for speed...
+	for (std::size_t i = 0; i < coupling.size(); i++) {
+		assert(phi.size() == coupling[i].size());
+	}
 
 	double V = phi[0];
 	double W = phi[1];
 
-	double c_0 = coupling[0];
+	double sc_0 = coupling[0][0]; //surface
+	double rc_0 = coupling[1][0]; //regional
 
-	df[0] = d * tau * (alpha * W - f * V*V*V + e * V*V + g * V + gamma * I + gamma *c_0 );
+	df[0] = d * tau * (alpha * W - f * V*V*V + e * V*V + g * V + gamma * I + gamma * rc_0 + sc_0 * V); //TODO is this correct?
 	df[1] = d * (a + b * V + c * V*V - beta * W) / tau;
 
 	dg[0] = sigma;

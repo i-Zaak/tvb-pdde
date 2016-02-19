@@ -96,3 +96,127 @@ lint_history* lint_history_factory::create_history(unsigned long length, double 
 {
 	return new lint_history(length, dt, n_vars);
 }
+
+
+/*
+void global_history::push_state(std::size_t node, local_state_type state)
+{
+	this->history[node]->add_state(state);
+}
+*/
+
+void global_history::push_state(global_state_type global_state)
+{
+	assert(global_state.size() == this->history.size());
+	#pragma omp parallel for
+	for(std::size_t node=0; node < global_state.size(); node++){
+		this->history[node]->add_state(global_state[node]);
+	}
+
+}
+
+history_buffers* global_history::get_buffers(std::size_t node) const
+{
+	return this->history[node];
+}
+
+std::vector< history_buffers* > buffers_from_connectivity(
+		const global_connectivity_type &connectivity,
+		const local_state_type &values,
+		history_factory *history,
+		population_model *model,
+		double dt){
+	std::size_t n_nodes = connectivity.size();
+
+	std::vector< history_buffers* > buffers = std::vector< history_buffers* >(n_nodes);
+	
+	// determine buffer lengths
+	std::vector<double> max_delays = std::vector<double>(n_nodes,0.0);
+	for(std::size_t j=0; j < connectivity.size(); j++){
+		for(std::size_t k=0; k< connectivity[j].size(); k++)	{
+			connection conn = connectivity[j][k];
+			if ( max_delays[conn.from] < conn.delay) {
+				max_delays[conn.from] = conn.delay;
+			}
+		}
+	}
+
+	// create buffers and fill with constant state
+	for(std::size_t j=0; j < buffers.size(); j++){
+		unsigned long length = ceil(max_delays[j] / dt)+1;
+		buffers[j] = history->create_history(length, dt, model->n_vars()); //TODO refactor dt and nvars to consturctor
+		for(unsigned long k = 0; k < length; k++) {
+			buffers[j]->add_state(values);
+		}
+	}
+	return buffers;
+}
+
+
+global_history* global_history::constant_initial_conditions(
+		const global_connectivity_type &connectivity,
+		const local_state_type &values,
+		history_factory *history,
+		population_model *model,
+		double dt)
+{
+	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
+	global_history *ghist = new global_history(buffers);
+
+	return ghist;
+}
+
+void scatter_gather_history::push_state(global_state_type state)
+{
+	for(std::size_t i=0; i < this->region_nodes.size(); i++){
+		std::size_t regsize = this->region_nodes[i].size();
+		if(regsize == 0) continue;
+
+		//TODO omp parallel sum
+		unsigned int ndim = state[0].size();
+		local_state_type mean=local_state_type(ndim,0.0);
+		for(std::size_t j=0; j < regsize; j++){
+			for (unsigned int dim = 0; dim < ndim; dim++) {
+				mean[dim] += state[ this->region_nodes[i][j]][dim] / double(regsize);
+			}
+		}
+		this->history[i]->add_state(mean);
+	}
+
+}
+
+history_buffers* scatter_gather_history::get_buffers(std::size_t node)
+{
+	return this->history[this->nodes_region[node]];
+}
+
+std::size_t scatter_gather_history::local_node_id(std::size_t global_node_id)
+{
+	return this->nodes_region[global_node_id];
+}
+
+scatter_gather_history* scatter_gather_history::constant_initial_conditions(
+				const global_connectivity_type &connectivity,
+				const std::vector< std::vector< std::size_t > > &region_nodes,
+				const std::vector< std::size_t >&nodes_region,
+				const local_state_type &values,
+				history_factory *history,
+				population_model *model,
+				double dt)
+{
+	std::vector< history_buffers* > buffers = buffers_from_connectivity(connectivity,values,history,model,dt);
+
+	scatter_gather_history *ghist = new scatter_gather_history(buffers, region_nodes, nodes_region);
+	return ghist;
+}
+
+
+
+empty_history::empty_history(unsigned long n_vars):global_history()
+{
+	lint_history *buffs =new lint_history(1,0.1,n_vars);
+	local_state_type state = local_state_type(n_vars,0.0);
+	buffs->add_state(state);
+	this->history = std::vector< history_buffers* >();
+	this->history.push_back(buffs);
+}

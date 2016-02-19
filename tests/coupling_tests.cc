@@ -19,7 +19,7 @@ TEST_CASE("Evaluating coupling", "[linear coupling]"){
 	connectivity.push_back(conn2);
 
 
-	global_history_type global_history = global_history_type();	
+	std::vector< history_buffers* > buffers = std::vector< history_buffers* >();
 	lint_history* hist0 = new lint_history(3,0.5,n_vars);
 	for (int i = 0; i < 5; i++) {
 		local_state_type vals0 = local_state_type(n_vars);
@@ -40,19 +40,21 @@ TEST_CASE("Evaluating coupling", "[linear coupling]"){
 	local_state_type vals1 = local_state_type(n_vars,50.0);
 	hist1->add_state(vals1);
 
-	global_history.push_back(hist0);
-	global_history.push_back(hist1);
-	global_history.push_back(hist2);
+	buffers.push_back(hist0);
+	buffers.push_back(hist1);
+	buffers.push_back(hist2);
+
+	global_history history = global_history(buffers);
 
 
-	local_coupling_type coupling = local_coupling_type(n_vars,0.0);
+	local_state_type coupling = local_state_type(n_vars,0.0);
 	
 	linear_coupling coupling_function = linear_coupling();
 
-	coupling_function(connectivity, global_history, coupling);
+	coupling_function(connectivity, &history, coupling);
 	
 	static const double arr[] = {13.4,15.4,17.4};
-	local_coupling_type expected_coupling(arr, arr + sizeof(arr) / sizeof(arr[0]) );
+	local_state_type expected_coupling(arr, arr + sizeof(arr) / sizeof(arr[0]) );
 
 	REQUIRE( coupling[0] == Approx(expected_coupling[0]) );
 	REQUIRE( coupling[1] == Approx(expected_coupling[1]) );
