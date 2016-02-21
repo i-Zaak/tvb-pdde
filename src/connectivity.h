@@ -20,8 +20,8 @@ unsigned long connectivity_from_partition(	std::ifstream& part_file,
 									neighbor_map_type &send_node_ids );
 
 std::size_t read_regional_mapping(	std::ifstream& region_file,
-									std::ifstream& conn_file,
-									global_connectivity_type &connectivity,
+									//std::ifstream& conn_file,
+									//global_connectivity_type &connectivity,
 									std::vector< std::vector< std::size_t > > &region_nodes,
 									std::vector< std::size_t >&nodes_region);
 #endif

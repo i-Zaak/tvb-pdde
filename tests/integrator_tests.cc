@@ -109,10 +109,10 @@ TEST_CASE("Initial conditions from connectivity" "[integrator]"){
 	global_connectivity_type connectivity = connectivity_from_mtx(conn_file);
 	REQUIRE(connectivity.size() == 20);
 
-	global_connectivity_type reg_conn;
 	std::vector< std::vector< std::size_t > > region_nodes;
 	std::vector< std::size_t >nodes_region;
-	read_regional_mapping(region_file, reg_conn_file, reg_conn, region_nodes, nodes_region);
+	read_regional_mapping(region_file, region_nodes, nodes_region);
+	global_connectivity_type reg_conn = connectivity_from_mtx(reg_conn_file);
 	REQUIRE(reg_conn.size() == 4);
 
 	global_connectivities_type connectivities = global_connectivities_type();

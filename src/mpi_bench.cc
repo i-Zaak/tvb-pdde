@@ -7,7 +7,7 @@
 #include "connectivity.h"
 #include "coupling.h"
 #include "history.h"
-#include "mpi_integrator.h"
+#include "mpi_history.h"
 #include "model.h"
 #include "observer.h"
 #include "mpi.h"
@@ -25,45 +25,79 @@ int main(int argc, char* argv[])
 
 	if (argc != 5) {
 		if(task_id == 0){
-			std::cout << "usage: " << argv[0] << " connectivity_file.adj partition_file.adj.n dt n_steps" << std::endl;
+			std::cout << "usage: " << argv[0] ;
+			std::cout << " surface_connectivity_file.adj"; // 1 
+			std::cout << " surface_partition_file.adj.n"; // 2
+			std::cout << " region_connectivity_file.adj"; // 3 
+			std::cout << " region_partition_file.adj.n"; // 4
+			std::cout << " dt"; // 5
+			std::cout << " n_steps" << std::endl; // 6
 		}
 		return 1;
 	}
-	std::ifstream conn_file(argv[1]);
-	if(!conn_file.is_open()) {
+	std::ifstream surf_conn_file(argv[1]);
+	if(!surf_conn_file.is_open()) {
 		if(task_id == 0){
 			std::cout << "could not open " << argv[1] << std::endl;
 		}
 		return 2;
 	}
 	std::ostringstream stream; stream << task_id; // refactor when switched to C++0x
-	std::string part_filename = std::string(argv[2]) + "." + stream.str();
-	std::ifstream part_file(part_filename.c_str());
-	if(!part_file.is_open()) {
+	std::string surf_part_filename = std::string(argv[2]) + "." + stream.str();
+	std::ifstream surf_part_file(surf_part_filename.c_str());
+	if(!surf_part_file.is_open()) {
 		if(task_id == 0){
-			std::cout << "could not open " << part_filename << std::endl;
+			std::cout << "could not open " << surf_part_filename << std::endl;
 		}
 		return 3;
 	}
+	std::ifstream reg_conn_file(argv[3]);
+	if(!reg_conn_file.is_open()) {
+		if(task_id == 0){
+			std::cout << "could not open " << argv[3] << std::endl;
+		}
+		return 4;
+	}
+	stream.str(""); 
+	stream << task_id; // refactor when switched to C++0x
+	std::string reg_part_filename = std::string(argv[4]) + "." + stream.str();
+	std::ifstream reg_part_file(reg_part_filename.c_str());
+	if(!reg_part_file.is_open()) {
+		if(task_id == 0){
+			std::cout << "could not open " << reg_part_filename << std::endl;
+		}
+		return 5;
+	}
 
 
-	double dt = atof(argv[3]);
-	unsigned long n_steps = atoi(argv[4]);
+	double dt = atof(argv[5]);
+	unsigned long n_steps = atoi(argv[6]);
 
 	
-	neighbor_map_type recv_node_ids; 
-	neighbor_map_type send_node_ids;
-	global_connectivity_type connectivity;
+	neighbor_map_type s_recv_node_ids, r_recv_node_ids; 
+	neighbor_map_type s_send_node_ids, r_send_node_ids;
+	global_connectivity_type surf_connectivity, reg_connectivity;
+	std::vector< std::vector< std::size_t > > region_nodes;
+	std::vector< std::size_t >nodes_region;
 
 	struct timeval start_t, io_end_t, init_end_t, comp_end_t;
 
 	gettimeofday(&start_t, NULL);
 	// load the partitioning
-	unsigned long n_local_nodes = connectivity_from_partition( 	part_file, 
-																conn_file, 
-																connectivity, 
-																recv_node_ids, 
-																send_node_ids );
+	unsigned long n_local_nodes = connectivity_from_partition( 	surf_part_file, 
+																surf_conn_file, 
+																surf_connectivity, 
+																s_recv_node_ids, 
+																s_send_node_ids );
+	unsigned long n_reg_nodes = connectivity_from_partition( 	reg_part_file, 
+																reg_conn_file, 
+																reg_connectivity, 
+																r_recv_node_ids, 
+																r_send_node_ids );
+	read_regional_mapping(	region_file,
+														region_nodes,
+														nodes_region);
+
 	gettimeofday(&io_end_t, NULL);
 
 	// initialize history for this process, also for the shadow elements
@@ -71,9 +105,14 @@ int main(int argc, char* argv[])
 	generic_2d_oscillator *model = new generic_2d_oscillator();
 	local_state_type values = local_state_type(model->n_vars(),1.5);
 	// this may do some communication inside, here we don't care...
-	global_history_type initial_conditions = mpi_integrator::constant_initial_conditions(
-			connectivity, n_local_nodes,
-			values, history, model, dt ); 
+	//global_history_type initial_conditions = mpi_integrator::constant_initial_conditions(
+	//		connectivity, n_local_nodes,
+	//		values, history, model, dt ); 
+	global_histories_type initial_conditions = global_histories_type(2);
+	initial_conditions[0] = distributed_global_history::constant_initial_conditions(
+			surf_connectivity, values, history, model, s_recv_node_ids, s_send_node_ids, dt );
+	initial_conditions[1] = distributed_scatter_gather_history::constant_initial_conditions(
+			reg_connectivity, region_nodes, nodes_region, values, history, model, r_recv_node_ids, r_send_node_ids, dt );
 
 	
 	// create the integrator for this process
