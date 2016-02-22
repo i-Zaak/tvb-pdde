@@ -24,4 +24,10 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 									//global_connectivity_type &connectivity,
 									std::vector< std::vector< std::size_t > > &region_nodes,
 									std::vector< std::size_t >&nodes_region);
+
+void trivial_regional_mapping(
+		std::size_t n_nodes,
+		std::vector< std::vector< std::size_t > > &region_nodes,
+		std::vector< std::size_t >&nodes_region);
+
 #endif

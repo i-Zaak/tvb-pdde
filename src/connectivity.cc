@@ -157,3 +157,17 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 
 	return n_regions; //what for?
 }
+
+void trivial_regional_mapping(
+		std::size_t n_nodes,
+		std::vector< std::vector< std::size_t > > &region_nodes,
+		std::vector< std::size_t >&nodes_region)
+{
+	region_nodes.resize(1);
+	nodes_region.resize(n_nodes);
+
+	for (std::size_t i = 0; i < n_nodes; i++) {
+		nodes_region[i] = 0;
+		region_nodes[0].push_back(i);
+	}
+}

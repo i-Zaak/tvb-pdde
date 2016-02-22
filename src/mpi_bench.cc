@@ -6,6 +6,7 @@
 #include "common.h"
 #include "connectivity.h"
 #include "coupling.h"
+#include "integrator.h"
 #include "history.h"
 #include "mpi_history.h"
 #include "model.h"
@@ -94,9 +95,10 @@ int main(int argc, char* argv[])
 																reg_connectivity, 
 																r_recv_node_ids, 
 																r_send_node_ids );
-	read_regional_mapping(	region_file,
-														region_nodes,
-														nodes_region);
+	trivial_regional_mapping( n_local_nodes, region_nodes, nodes_region );
+	global_connectivities_type connectivities = global_connectivities_type(); 
+	connectivities[0] = surf_connectivity;
+	connectivities[1] = reg_connectivity;
 
 	gettimeofday(&io_end_t, NULL);
 
@@ -117,10 +119,10 @@ int main(int argc, char* argv[])
 	
 	// create the integrator for this process
 	linear_coupling *coupling = new linear_coupling();
-	raw_observer *observer = new raw_observer(connectivity.size());
-	mpi_euler_deterministic integrator = mpi_euler_deterministic(
-			model, coupling, connectivity, initial_conditions, observer,
-			dt,recv_node_ids,send_node_ids);
+	raw_observer *observer = new raw_observer(n_local_nodes);
+	euler integrator = euler(
+			model, coupling, connectivities, initial_conditions, observer,
+			dt);
 
 	MPI_Barrier(MPI_COMM_WORLD);
 	gettimeofday(&init_end_t, NULL);
