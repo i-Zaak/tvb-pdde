@@ -20,6 +20,7 @@ cp /storage/brno3-cerit/home/izaak/tvb-pdde/bin/mpi_bench $SCRATCHDIR || exit 2
 cd $SCRATCHDIR || exit 3 
 
 time mpirun -n {{n_proc}} mpi_bench conn{{conn}}.adj conn{{conn}}.adj.part.{{n_proc}} 0.1 {{n_iters}}
+time mpirun -n {{n_proc}} mpi_bench surf_conn{{conn}}.adj surf_conn{{conn}}.adj.{{n_proc}} reg_conn{{conn}}.adj reg_conn{{conn}}.adj.{{n_proc}} 0.1 {{n_iters}}
 
 """
 
