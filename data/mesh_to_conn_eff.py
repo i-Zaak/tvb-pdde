@@ -40,7 +40,7 @@ def mesh_to_sparse_dist(mesh, d_max, out_fname):
         ids = np.intersect1d(xids,yids,assume_unique=True)
 
         dists = np.linalg.norm(verts[ids,:]-[x_n,y_n],axis=1)
-        dists_th = dists < 6 #mm
+        dists_th = dists < 6
         ids = ids[dists_th]
         dists = dists[dists_th]
         
@@ -63,7 +63,7 @@ if __name__ == "__main__":
     if len(sys.argv) != 3:
         print "Usage: %s mesh_in.msh conn_out.mtx" % sys.argv[0]
         sys.exit(1)
-    d_max = 1.0
+    d_max = 10.0
     mesh = Mesh()
     print "Reading... ",
     sys.stdout.flush()
