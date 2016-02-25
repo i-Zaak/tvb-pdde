@@ -48,8 +48,10 @@ def mesh_to_sparse_dist(mesh, d_max, out_fname):
         block = ''
         for i,m_id in enumerate(ids):
             if n_id !=m_id:
-                block += '%d %d %f\n%d %d %f\n' % (n_id+1,m_id+1,dists[i],m_id+1,n_id+1,dists[i])
-                nnz += 2
+                #block += '%d %d %f\n%d %d %f\n' % (n_id+1,m_id+1,dists[i],m_id+1,n_id+1,dists[i])
+                block += '%d %d %f\n' % (n_id+1,m_id+1,dists[i])
+                #nnz += 2
+                nnz += 1
             #distmat[n_id,m_id] = dists[i]
             #distmat[m_id,n_id] = dists[i]
         out_f.write(block)
