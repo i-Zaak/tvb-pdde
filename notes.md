@@ -16,7 +16,7 @@ resources
   * [x] ~~nagenerovat site (max 16 regionu, 2k uzlu kazdy (celkem 32k?), 100 hran)~~
   * [x] ~~jake delays mezi regiony?~~
   * [x] ~~regionalni konektivita~~
-* [ ] otestovat lokalne
+* [x] otestovat lokalne
 * [ ] pbs skript
 * [ ] rezervovat 16 uzlu: qsub -l walltime=1d -l mem=400mb -l scratch=400mb -l nodes=16:ppn=1:x86_64:cl_ida
 * [ ] otestovat (profil) skalovani: pokud je tam nejaka komunikace, budeme se snazit ji prekryt vypoctem: a) regiony b) tiled surface
