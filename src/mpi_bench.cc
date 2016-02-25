@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	int task_id;
 	MPI_Comm_rank(MPI_COMM_WORLD,&task_id);
 
-	if (argc != 5) {
+	if (argc != 7) {
 		if(task_id == 0){
 			std::cout << "usage: " << argv[0] ;
 			std::cout << " surface_connectivity_file.adj"; // 1 
@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
 			std::cout << " dt"; // 5
 			std::cout << " n_steps" << std::endl; // 6
 		}
+		int status = MPI_Finalize();
 		return 1;
 	}
 	std::ifstream surf_conn_file(argv[1]);
@@ -41,6 +42,7 @@ int main(int argc, char* argv[])
 		if(task_id == 0){
 			std::cout << "could not open " << argv[1] << std::endl;
 		}
+		int status = MPI_Finalize();
 		return 2;
 	}
 	std::ostringstream stream; stream << task_id; // refactor when switched to C++0x
@@ -50,6 +52,7 @@ int main(int argc, char* argv[])
 		if(task_id == 0){
 			std::cout << "could not open " << surf_part_filename << std::endl;
 		}
+		int status = MPI_Finalize();
 		return 3;
 	}
 	std::ifstream reg_conn_file(argv[3]);
@@ -57,6 +60,7 @@ int main(int argc, char* argv[])
 		if(task_id == 0){
 			std::cout << "could not open " << argv[3] << std::endl;
 		}
+		int status = MPI_Finalize();
 		return 4;
 	}
 	stream.str(""); 
@@ -67,6 +71,7 @@ int main(int argc, char* argv[])
 		if(task_id == 0){
 			std::cout << "could not open " << reg_part_filename << std::endl;
 		}
+		int status = MPI_Finalize();
 		return 5;
 	}
 
