@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 																r_recv_node_ids, 
 																r_send_node_ids );
 	trivial_regional_mapping( n_local_nodes, region_nodes, nodes_region );
-	global_connectivities_type connectivities = global_connectivities_type(); 
+	global_connectivities_type connectivities = global_connectivities_type(2); 
 	connectivities[0] = surf_connectivity;
 	connectivities[1] = reg_connectivity;
 
