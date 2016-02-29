@@ -132,8 +132,8 @@ unsigned long connectivity_from_partition(	std::ifstream &part_file,
 
 
 std::size_t read_regional_mapping(	std::ifstream& region_file,
-									std::ifstream& conn_file,
-									global_connectivity_type &connectivity,
+									//std::ifstream& conn_file,
+									//global_connectivity_type &connectivity,
 									std::vector< std::vector< std::size_t > > &region_nodes,
 									std::vector< std::size_t >&nodes_region)
 {
@@ -141,7 +141,7 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 	region_file >> n_nodes >> n_regions;
 	region_nodes.resize(n_regions);
 	nodes_region.resize(n_nodes);
-	connectivity.resize(n_regions);
+	//connectivity.resize(n_regions);
 
 	// read the mapping
 	for (std::size_t i = 0; i < n_nodes; i++) {
@@ -152,8 +152,22 @@ std::size_t read_regional_mapping(	std::ifstream& region_file,
 	}
 
 	// read the connectivity
-	global_connectivity_type conn = connectivity_from_mtx(conn_file);
-	connectivity = conn;
+	//global_connectivity_type conn = connectivity_from_mtx(conn_file);
+	//connectivity = conn;
 
 	return n_regions; //what for?
+}
+
+void trivial_regional_mapping(
+		std::size_t n_nodes,
+		std::vector< std::vector< std::size_t > > &region_nodes,
+		std::vector< std::size_t >&nodes_region)
+{
+	region_nodes.resize(1);
+	nodes_region.resize(n_nodes);
+
+	for (std::size_t i = 0; i < n_nodes; i++) {
+		nodes_region[i] = 0;
+		region_nodes[0].push_back(i);
+	}
 }

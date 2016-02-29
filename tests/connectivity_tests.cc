@@ -61,10 +61,11 @@ TEST_CASE("Reading regional connectivity"){
 	REQUIRE(conn_file.is_open());
 
 	read_regional_mapping(	reg_file, 
-							conn_file, 
-							connectivity,
+							//conn_file, 
+							//connectivity,
 							region_nodes, 
 							nodes_region);
+	connectivity = connectivity_from_mtx(conn_file);
 	REQUIRE(connectivity.size() == 4);
 	REQUIRE(connectivity[0].size() == 1);
 	REQUIRE(connectivity[1].size() == 1);
